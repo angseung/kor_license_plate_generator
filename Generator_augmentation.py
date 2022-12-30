@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import argparse
 
+
 def image_augmentation(img, ang_range=6, shear_range=3, trans_range=3):
     # Rotation
     ang_rot = np.random.uniform(ang_range) - ang_range / 2
@@ -29,15 +30,15 @@ def image_augmentation(img, ang_range=6, shear_range=3, trans_range=3):
     # Brightness
     img = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
     img = np.array(img, dtype=np.float64)
-    random_bright = .4 + np.random.uniform()
+    random_bright = 0.4 + np.random.uniform()
     img[:, :, 2] = img[:, :, 2] * random_bright
     img[:, :, 2][img[:, :, 2] > 255] = 255
     img = np.array(img, dtype=np.uint8)
     img = cv2.cvtColor(img, cv2.COLOR_HSV2RGB)
 
     # Blur
-    blur_value = random.randint(0,5) * 2 + 1
-    img = cv2.blur(img,(blur_value, blur_value))
+    blur_value = random.randint(0, 5) * 2 + 1
+    img = cv2.blur(img, (blur_value, blur_value))
 
     return img
 
@@ -140,7 +141,6 @@ class ImageGenerator:
             self.resion_list_g.append(file[0:-4])
             # =========================================================================
 
-
     def Type_1(self, num, save=False):
         number = [cv2.resize(number, (56, 83)) for number in self.Number]
         char = [cv2.resize(char1, (60, 83)) for char1 in self.Char1]
@@ -149,9 +149,19 @@ class ImageGenerator:
             Plate = cv2.resize(self.plate, (520, 110))
             random_width = random.randint(140, 230)
             random_height = random.randint(550, 720)
-            random_R, random_G, random_B = random.randint(0,255), random.randint(0,255), random.randint(0,255)
+            random_R, random_G, random_B = (
+                random.randint(0, 255),
+                random.randint(0, 255),
+                random.randint(0, 255),
+            )
             background = np.zeros((random_width, random_height, 3), np.uint8)
-            cv2.rectangle(background, (0, 0), (random_height, random_width), (random_R, random_G, random_B), -1)
+            cv2.rectangle(
+                background,
+                (0, 0),
+                (random_height, random_width),
+                (random_R, random_G, random_B),
+                -1,
+            )
 
             label = "Z"
             # row -> y , col -> x
@@ -159,47 +169,47 @@ class ImageGenerator:
             # number 1
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # number 2
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # character 3
-            label += self.char_list[i%37]
-            Plate[row:row + 83, col:col + 60, :] = char[i%37]
-            col += (60 + 36)
+            label += self.char_list[i % 37]
+            Plate[row : row + 83, col : col + 60, :] = char[i % 37]
+            col += 60 + 36
 
             # number 4
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # number 5
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # number 6
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # number 7
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             random_w = random.randint(0, random_width - 110)
             random_h = random.randint(0, random_height - 520)
-            background[random_w:110+random_w, random_h:520+random_h, :] = Plate
+            background[random_w : 110 + random_w, random_h : 520 + random_h, :] = Plate
             background = image_augmentation(background)
 
             if save:
@@ -216,9 +226,19 @@ class ImageGenerator:
             Plate = cv2.resize(self.plate, (355, 155))
             random_width = random.randint(185, 275)
             random_height = random.randint(380, 555)
-            random_R, random_G, random_B = random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
+            random_R, random_G, random_B = (
+                random.randint(0, 255),
+                random.randint(0, 255),
+                random.randint(0, 255),
+            )
             background = np.zeros((random_width, random_height, 3), np.uint8)
-            cv2.rectangle(background, (0, 0), (random_height, random_width), (random_R, random_G, random_B), -1)
+            cv2.rectangle(
+                background,
+                (0, 0),
+                (random_height, random_width),
+                (random_R, random_G, random_B),
+                -1,
+            )
 
             label = "Z"
             row, col = 46, 10  # row + 83, col + 56
@@ -226,47 +246,47 @@ class ImageGenerator:
             # number 1
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 45, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
             col += 45
 
             # number 2
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 45, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
             col += 45
 
             # number 3
-            label += self.char_list[i%37]
-            Plate[row + 12:row + 82, col + 2:col + 49 + 2, :] = char[i%37]
+            label += self.char_list[i % 37]
+            Plate[row + 12 : row + 82, col + 2 : col + 49 + 2, :] = char[i % 37]
             col += 49 + 2
 
             # number 4
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col + 2:col + 45 + 2, :] = number[rand_int]
+            Plate[row : row + 83, col + 2 : col + 45 + 2, :] = number[rand_int]
             col += 45 + 2
 
             # number 5
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 45, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
             col += 45
 
             # number 6
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 45, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
             col += 45
 
             # number 7
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 45, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
             col += 45
 
             random_w = random.randint(0, random_width - 155)
             random_h = random.randint(0, random_height - 355)
-            background[random_w:155 + random_w, random_h:355 + random_h, :] = Plate
+            background[random_w : 155 + random_w, random_h : 355 + random_h, :] = Plate
             background = image_augmentation(background)
 
             if save:
@@ -286,9 +306,19 @@ class ImageGenerator:
             Plate = cv2.resize(self.plate2, (336, 170))
             random_width = random.randint(200, 290)
             random_height = random.randint(360, 536)
-            random_R, random_G, random_B = random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
+            random_R, random_G, random_B = (
+                random.randint(0, 255),
+                random.randint(0, 255),
+                random.randint(0, 255),
+            )
             background = np.zeros((random_width, random_height, 3), np.uint8)
-            cv2.rectangle(background, (0, 0), (random_height, random_width), (random_R, random_G, random_B), -1)
+            cv2.rectangle(
+                background,
+                (0, 0),
+                (random_height, random_width),
+                (random_R, random_G, random_B),
+                -1,
+            )
 
             label = str()
             # row -> y , col -> x
@@ -296,52 +326,54 @@ class ImageGenerator:
 
             # resion
             label += self.resion_list_y[i % 16]
-            Plate[row:row + 60, col:col + 88, :] = resion[i % 16]
+            Plate[row : row + 60, col : col + 88, :] = resion[i % 16]
             col += 88 + 8
 
             # number 1
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 60, col:col + 44, :] = number1[rand_int]
+            Plate[row : row + 60, col : col + 44, :] = number1[rand_int]
             col += 44
 
             # number 2
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 60, col:col + 44, :] = number1[rand_int]
+            Plate[row : row + 60, col : col + 44, :] = number1[rand_int]
 
             row, col = 72, 8
 
             # character 3
             label += self.char_list_y[i % 37]
-            Plate[row:row + 62, col:col + 64, :] = char[i % 37]
+            Plate[row : row + 62, col : col + 64, :] = char[i % 37]
             col += 64
 
             # number 4
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 90, col:col + 64, :] = number2[rand_int]
+            Plate[row : row + 90, col : col + 64, :] = number2[rand_int]
             col += 64
 
             # number 5
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 90, col:col + 64, :] = number2[rand_int]
+            Plate[row : row + 90, col : col + 64, :] = number2[rand_int]
             col += 64
 
             # number 6
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 90, col:col + 64, :] = number2[rand_int]
+            Plate[row : row + 90, col : col + 64, :] = number2[rand_int]
             col += 64
 
             # number 7
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 90, col:col + 64, :] = number2[rand_int]
+            Plate[row : row + 90, col : col + 64, :] = number2[rand_int]
 
-            s_width, s_height = int((random_width - 170) / 2), int((random_height - 336) / 2)
-            background[s_width:170 + s_width, s_height:336 + s_height, :] = Plate
+            s_width, s_height = int((random_width - 170) / 2), int(
+                (random_height - 336) / 2
+            )
+            background[s_width : 170 + s_width, s_height : 336 + s_height, :] = Plate
             background = image_augmentation(background)
 
             if save:
@@ -361,9 +393,19 @@ class ImageGenerator:
             Plate = cv2.resize(self.plate3, (336, 170))
             random_width = random.randint(200, 290)
             random_height = random.randint(360, 536)
-            random_R, random_G, random_B = random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
+            random_R, random_G, random_B = (
+                random.randint(0, 255),
+                random.randint(0, 255),
+                random.randint(0, 255),
+            )
             background = np.zeros((random_width, random_height, 3), np.uint8)
-            cv2.rectangle(background, (0, 0), (random_height, random_width), (random_R, random_G, random_B), -1)
+            cv2.rectangle(
+                background,
+                (0, 0),
+                (random_height, random_width),
+                (random_R, random_G, random_B),
+                -1,
+            )
 
             label = str()
             # row -> y , col -> x
@@ -371,52 +413,54 @@ class ImageGenerator:
 
             # resion
             label += self.resion_list_g[i % 16]
-            Plate[row:row + 60, col:col + 88, :] = resion[i % 16]
+            Plate[row : row + 60, col : col + 88, :] = resion[i % 16]
             col += 88 + 8
 
             # number 1
             rand_int = random.randint(0, 9)
             label += self.number_list_g[rand_int]
-            Plate[row:row + 60, col:col + 44, :] = number1[rand_int]
+            Plate[row : row + 60, col : col + 44, :] = number1[rand_int]
             col += 44
 
             # number 2
             rand_int = random.randint(0, 9)
             label += self.number_list_g[rand_int]
-            Plate[row:row + 60, col:col + 44, :] = number1[rand_int]
+            Plate[row : row + 60, col : col + 44, :] = number1[rand_int]
 
             row, col = 72, 8
 
             # character 3
             label += self.char_list_g[i % 37]
-            Plate[row:row + 62, col:col + 64, :] = char[i % 37]
+            Plate[row : row + 62, col : col + 64, :] = char[i % 37]
             col += 64
 
             # number 4
             rand_int = random.randint(0, 9)
             label += self.number_list_g[rand_int]
-            Plate[row:row + 90, col:col + 64, :] = number2[rand_int]
+            Plate[row : row + 90, col : col + 64, :] = number2[rand_int]
             col += 64
 
             # number 5
             rand_int = random.randint(0, 9)
             label += self.number_list_g[rand_int]
-            Plate[row:row + 90, col:col + 64, :] = number2[rand_int]
+            Plate[row : row + 90, col : col + 64, :] = number2[rand_int]
             col += 64
 
             # number 6
             rand_int = random.randint(0, 9)
             label += self.number_list_g[rand_int]
-            Plate[row:row + 90, col:col + 64, :] = number2[rand_int]
+            Plate[row : row + 90, col : col + 64, :] = number2[rand_int]
             col += 64
 
             # number 7
             rand_int = random.randint(0, 9)
             label += self.number_list_g[rand_int]
-            Plate[row:row + 90, col:col + 64, :] = number2[rand_int]
+            Plate[row : row + 90, col : col + 64, :] = number2[rand_int]
 
-            s_width, s_height = int((random_width - 170) / 2), int((random_height - 336) / 2)
-            background[s_width:170 + s_width, s_height:336 + s_height, :] = Plate
+            s_width, s_height = int((random_width - 170) / 2), int(
+                (random_height - 336) / 2
+            )
+            background[s_width : 170 + s_width, s_height : 336 + s_height, :] = Plate
             background = image_augmentation(background)
 
             if save:
@@ -435,9 +479,19 @@ class ImageGenerator:
             Plate = cv2.resize(self.plate3, (336, 170))
             random_width = random.randint(200, 290)
             random_height = random.randint(360, 536)
-            random_R, random_G, random_B = random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
+            random_R, random_G, random_B = (
+                random.randint(0, 255),
+                random.randint(0, 255),
+                random.randint(0, 255),
+            )
             background = np.zeros((random_width, random_height, 3), np.uint8)
-            cv2.rectangle(background, (0, 0), (random_height, random_width), (random_R, random_G, random_B), -1)
+            cv2.rectangle(
+                background,
+                (0, 0),
+                (random_height, random_width),
+                (random_R, random_G, random_B),
+                -1,
+            )
             label = "Z"
 
             # row -> y , col -> x
@@ -446,46 +500,46 @@ class ImageGenerator:
             # number 1
             rand_int = random.randint(0, 9)
             label += self.number_list_g[rand_int]
-            Plate[row:row + 65, col:col + 60, :] = number1[rand_int]
+            Plate[row : row + 65, col : col + 60, :] = number1[rand_int]
             col += 60
 
             # number 2
             rand_int = random.randint(0, 9)
             label += self.number_list_g[rand_int]
-            Plate[row:row + 65, col:col + 60, :] = number1[rand_int]
+            Plate[row : row + 65, col : col + 60, :] = number1[rand_int]
             col += 60
 
             # character 3
-            label += self.char_list_g[i%37]
-            Plate[row:row + 65, col:col + 60, :] = char[i%37]
+            label += self.char_list_g[i % 37]
+            Plate[row : row + 65, col : col + 60, :] = char[i % 37]
             row, col = 75, 8
 
             # number 4
             rand_int = random.randint(0, 9)
             label += self.number_list_g[rand_int]
-            Plate[row:row + 90, col:col + 80, :] = number2[rand_int]
+            Plate[row : row + 90, col : col + 80, :] = number2[rand_int]
             col += 80
 
             # number 5
             rand_int = random.randint(0, 9)
             label += self.number_list_g[rand_int]
-            Plate[row:row + 90, col:col + 80, :] = number2[rand_int]
+            Plate[row : row + 90, col : col + 80, :] = number2[rand_int]
             col += 80
 
             # number 6
             rand_int = random.randint(0, 9)
             label += self.number_list_g[rand_int]
-            Plate[row:row + 90, col:col + 80, :] = number2[rand_int]
+            Plate[row : row + 90, col : col + 80, :] = number2[rand_int]
             col += 80
 
             # number 7
             rand_int = random.randint(0, 9)
             label += self.number_list_g[rand_int]
-            Plate[row:row + 90, col:col + 80, :] = number2[rand_int]
+            Plate[row : row + 90, col : col + 80, :] = number2[rand_int]
 
             random_w = random.randint(0, random_width - 170)
             random_h = random.randint(0, random_height - 336)
-            background[random_w:170 + random_w, random_h:336 + random_h, :] = Plate
+            background[random_w : 170 + random_w, random_h : 336 + random_h, :] = Plate
 
             background = image_augmentation(background)
 
@@ -495,12 +549,12 @@ class ImageGenerator:
                 cv2.imshow(label, background)
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
-    
+
     def Type_6(self, num, save=False):
         number = [cv2.resize(number, (56, 83)) for number in self.Number]
         char = [cv2.resize(char1, (60, 83)) for char1 in self.Char1]
-        Plate = cv2.resize(self.plate, (520+56, 110))
-        '''
+        Plate = cv2.resize(self.plate, (520 + 56, 110))
+        """
         def Type_1(self, num, save=False):
         number = [cv2.resize(number, (56, 83)) for number in self.Number]
         char = [cv2.resize(char1, (60, 83)) for char1 in self.Char1]
@@ -516,68 +570,80 @@ class ImageGenerator:
             label = "Z"
             # row -> y , col -> x
             row, col = 13, 35  # row + 83, col + 56
-        '''
+        """
 
         for i, Iter in enumerate(range(num)):
-            Plate = cv2.resize(self.plate, (520+56, 110))
+            Plate = cv2.resize(self.plate, (520 + 56, 110))
             random_width = random.randint(140, 230)
-            random_height = random.randint(550+56, 720)
-            random_R, random_G, random_B = random.randint(0,255), random.randint(0,255), random.randint(0,255)
+            random_height = random.randint(550 + 56, 720)
+            random_R, random_G, random_B = (
+                random.randint(0, 255),
+                random.randint(0, 255),
+                random.randint(0, 255),
+            )
             background = np.zeros((random_width, random_height, 3), np.uint8)
-            cv2.rectangle(background, (0, 0), (random_height, random_width), (random_R, random_G, random_B), -1)
+            cv2.rectangle(
+                background,
+                (0, 0),
+                (random_height, random_width),
+                (random_R, random_G, random_B),
+                -1,
+            )
             label = "Z"
             # row -> y , col -> x
             row, col = 13, 35  # row + 83, col + 56
             # number 1
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # number 2
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # number 3
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # character 3
-            label += self.char_list[i%37]
-            Plate[row:row + 83, col:col + 60, :] = char[i%37]
-            col += (60 + 36)
+            label += self.char_list[i % 37]
+            Plate[row : row + 83, col : col + 60, :] = char[i % 37]
+            col += 60 + 36
 
             # number 4
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # number 5
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # number 6
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # number 7
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             random_w = random.randint(0, random_width - 110)
             random_h = random.randint(0, random_height - 520)
-            background[random_w:110+random_w, random_h:520+56+random_h, :] = Plate
+            background[
+                random_w : 110 + random_w, random_h : 520 + 56 + random_h, :
+            ] = Plate
             background = image_augmentation(background)
 
             if save:
@@ -587,73 +653,81 @@ class ImageGenerator:
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
 
-
     def Type_7(self, num, save=False):
         number = [cv2.resize(number, (45, 83)) for number in self.Number]
         char = [cv2.resize(char1, (49, 70)) for char1 in self.Char1]
-        Plate = cv2.resize(self.plate, (355+45, 155))
+        Plate = cv2.resize(self.plate, (355 + 45, 155))
 
         for i, Iter in enumerate(range(num)):
-            Plate = cv2.resize(self.plate, (355+45, 155))
+            Plate = cv2.resize(self.plate, (355 + 45, 155))
             random_width = random.randint(140, 230)
             random_height = random.randint(550, 720)
-            random_R, random_G, random_B = random.randint(0,255), random.randint(0,255), random.randint(0,255)
+            random_R, random_G, random_B = (
+                random.randint(0, 255),
+                random.randint(0, 255),
+                random.randint(0, 255),
+            )
             background = np.zeros((random_width, random_height, 3), np.uint8)
-            cv2.rectangle(background, (0, 0), (random_height, random_width), (random_R, random_G, random_B), -1)
+            cv2.rectangle(
+                background,
+                (0, 0),
+                (random_height, random_width),
+                (random_R, random_G, random_B),
+                -1,
+            )
             label = "Z"
             row, col = 46, 10  # row + 83, col + 56
 
             # number 1
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 45, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
             col += 45
 
             # number 2
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 45, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
             col += 45
 
             # number 3
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 45, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
             col += 45
 
             # character 4
-            label += self.char_list[i%37]
-            Plate[row + 12:row + 82, col + 2:col + 49 + 2, :] = char[i%37]
+            label += self.char_list[i % 37]
+            Plate[row + 12 : row + 82, col + 2 : col + 49 + 2, :] = char[i % 37]
             col += 49 + 2
 
             # number 4
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col + 2:col + 45 + 2, :] = number[rand_int]
+            Plate[row : row + 83, col + 2 : col + 45 + 2, :] = number[rand_int]
             col += 45 + 2
 
             # number 5
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 45, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
             col += 45
 
             # number 6
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 45, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
             col += 45
 
             # number 7
             rand_int = random.randint(0, 9)
             label += self.number_list[rand_int]
-            Plate[row:row + 83, col:col + 45, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
             col += 45
-
 
             random_w = random.randint(0, random_width - 110)
             random_h = random.randint(0, random_height - 520)
-            background[random_w:110+random_w, random_h:576+random_h, :] = Plate
+            background[random_w : 110 + random_w, random_h : 576 + random_h, :] = Plate
             background = image_augmentation(background)
 
             if save:
@@ -662,7 +736,6 @@ class ImageGenerator:
                 cv2.imshow(label, background)
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
-
 
     def Type_8(self, num, save=False):
         number = [cv2.resize(number, (56, 83)) for number in self.Number_y]
@@ -670,66 +743,75 @@ class ImageGenerator:
         char = [cv2.resize(char1, (60, 83)) for char1 in self.Char1_y]
 
         for i, Iter in enumerate(range(num)):
-            Plate = cv2.resize(self.plate2, (520+56, 110))
+            Plate = cv2.resize(self.plate2, (520 + 56, 110))
             random_width = random.randint(140, 230)
             random_height = random.randint(550, 720)
-            random_R, random_G, random_B = random.randint(0,255), random.randint(0,255), random.randint(0,255)
+            random_R, random_G, random_B = (
+                random.randint(0, 255),
+                random.randint(0, 255),
+                random.randint(0, 255),
+            )
             background = np.zeros((random_width, random_height, 3), np.uint8)
-            cv2.rectangle(background, (0, 0), (random_height, random_width), (random_R, random_G, random_B), -1)
+            cv2.rectangle(
+                background,
+                (0, 0),
+                (random_height, random_width),
+                (random_R, random_G, random_B),
+                -1,
+            )
             label = "Z"
             # row -> y , col -> x
             row, col = 13, 35  # row + 83, col + 56
             # number 1
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # number 2
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # number 3
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # character 3
-            label += self.char_list_y[i%37]
-            Plate[row:row + 83, col:col + 60, :] = char[i%37]
-            col += (60 + 36)
+            label += self.char_list_y[i % 37]
+            Plate[row : row + 83, col : col + 60, :] = char[i % 37]
+            col += 60 + 36
 
             # number 4
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # number 5
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # number 6
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # number 7
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 83, col:col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
-
 
             random_w = random.randint(0, random_width - 110)
             random_h = random.randint(0, random_height - 520)
-            background[random_w:110+random_w, random_h:576+random_h, :] = Plate
+            background[random_w : 110 + random_w, random_h : 576 + random_h, :] = Plate
             background = image_augmentation(background)
 
             if save:
@@ -739,73 +821,81 @@ class ImageGenerator:
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
 
-
     def Type_9(self, num, save=False):
         number = [cv2.resize(number, (45, 83)) for number in self.Number_y]
         char = [cv2.resize(char1, (49, 70)) for char1 in self.Char1_y]
-        Plate = cv2.resize(self.plate2, (355+45, 155))
+        Plate = cv2.resize(self.plate2, (355 + 45, 155))
 
         for i, Iter in enumerate(range(num)):
-            Plate = cv2.resize(self.plate2, (355+45, 155))
+            Plate = cv2.resize(self.plate2, (355 + 45, 155))
             random_width = random.randint(140, 230)
             random_height = random.randint(550, 720)
-            random_R, random_G, random_B = random.randint(0,255), random.randint(0,255), random.randint(0,255)
+            random_R, random_G, random_B = (
+                random.randint(0, 255),
+                random.randint(0, 255),
+                random.randint(0, 255),
+            )
             background = np.zeros((random_width, random_height, 3), np.uint8)
-            cv2.rectangle(background, (0, 0), (random_height, random_width), (random_R, random_G, random_B), -1)
+            cv2.rectangle(
+                background,
+                (0, 0),
+                (random_height, random_width),
+                (random_R, random_G, random_B),
+                -1,
+            )
             label = "Z"
             row, col = 46, 10  # row + 83, col + 56
 
             # number 1
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 83, col:col + 45, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
             col += 45
 
             # number 2
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 83, col:col + 45, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
             col += 45
 
             # number 3
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 83, col:col + 45, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
             col += 45
 
             # character 4
-            label += self.char_list_y[i%37]
-            Plate[row + 12:row + 82, col + 2:col + 49 + 2, :] = char[i%37]
+            label += self.char_list_y[i % 37]
+            Plate[row + 12 : row + 82, col + 2 : col + 49 + 2, :] = char[i % 37]
             col += 49 + 2
 
             # number 4
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 83, col + 2:col + 45 + 2, :] = number[rand_int]
+            Plate[row : row + 83, col + 2 : col + 45 + 2, :] = number[rand_int]
             col += 45 + 2
 
             # number 5
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 83, col:col + 45, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
             col += 45
 
             # number 6
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 83, col:col + 45, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
             col += 45
 
             # number 7
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row:row + 83, col:col + 45, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
             col += 45
-
 
             random_w = random.randint(0, random_width - 110)
             random_h = random.randint(0, random_height - 520)
-            background[random_w:110+random_w, random_h:576+random_h, :] = Plate
+            background[random_w : 110 + random_w, random_h : 576 + random_h, :] = Plate
             background = image_augmentation(background)
 
             if save:
@@ -815,13 +905,13 @@ class ImageGenerator:
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
 
+
 parser = argparse.ArgumentParser()
-parser.add_argument("-i", "--img_dir", help="save image directory",
-                    type=str, default="../DB/train/")
-parser.add_argument("-n", "--num", help="number of image",
-                    type=int)
-parser.add_argument("-s", "--save", help="save or imshow",
-                    type=bool, default=True)
+parser.add_argument(
+    "-i", "--img_dir", help="save image directory", type=str, default="../DB/train/"
+)
+parser.add_argument("-n", "--num", help="number of image", type=int)
+parser.add_argument("-s", "--save", help="save or imshow", type=bool, default=True)
 args = parser.parse_args()
 
 
@@ -842,7 +932,7 @@ A.Type_4(num_img, save=Save)
 print("Type 4 finish")
 A.Type_5(num_img, save=Save)
 print("Type 5 finish")
-'''
+"""
 A.Type_6(num_img, save=Save)
 print("Type 6 finish")
 A.Type_7(num_img, save=Save)
@@ -851,4 +941,4 @@ A.Type_8(num_img, save=Save)
 print("Type 8 finish")
 A.Type_9(num_img, save=Save)
 print("Type 9 finish")
-'''
+"""
