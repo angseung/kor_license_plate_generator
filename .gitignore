@@ -252,4 +252,5 @@ crashlytics-build.properties
 fabric.properties
 .idea
 .vscode
-
+test_generate
+test_generate2
