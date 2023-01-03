@@ -28,6 +28,8 @@ class ImageGenerator:
         self.new_plate2 = cv2.imread("new_plate2.png")
         self.new_plate3 = cv2.imread("new_plate3.png")
         self.new_plate4 = cv2.imread("new_plate4.png")
+        self.new_plate8 = cv2.imread("new_plate8.png")
+        
 
         # loading Number
         file_path = "./num/"
@@ -878,6 +880,70 @@ class ImageGenerator:
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
 
+    def Type_10(self, num, save=False):
+        number = [cv2.resize(number, (45, 83)) for number in self.Number]
+        char = [cv2.resize(char1, (49, 70)) for char1 in self.Char1]
+        Plate = cv2.resize(self.new_plate8, (355 + 45, 155))
+
+        for i, Iter in enumerate(range(num)):
+            Plate = cv2.resize(self.new_plate8, (355 + 45, 155))
+            label = "Z"
+            row, col = 46, 10  # row + 83, col + 56
+
+            # number 1
+            rand_int = random.randint(0, 9)
+            label += self.number_list[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
+            col += 45
+
+            # number 2
+            rand_int = random.randint(0, 9)
+            label += self.number_list[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
+            col += 45
+
+            # number 3
+            rand_int = random.randint(0, 9)
+            label += self.number_list[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
+            col += 45
+
+            # character 4
+            label += self.char_list[i % 37]
+            Plate[row + 12 : row + 82, col + 2 : col + 49 + 2, :] = char[i % 37]
+            col += 49 + 2
+
+            # number 4
+            rand_int = random.randint(0, 9)
+            label += self.number_list[rand_int]
+            Plate[row : row + 83, col + 2 : col + 45 + 2, :] = number[rand_int]
+            col += 45 + 2
+
+            # number 5
+            rand_int = random.randint(0, 9)
+            label += self.number_list[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
+            col += 45
+
+            # number 6
+            rand_int = random.randint(0, 9)
+            label += self.number_list[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
+            col += 45
+
+            # number 7
+            rand_int = random.randint(0, 9)
+            label += self.number_list[rand_int]
+            Plate[row : row + 83, col : col + 45, :] = number[rand_int]
+            col += 45
+            Plate = random_bright(Plate)
+            if save:
+                cv2.imwrite(self.save_path + label + ".jpg", Plate)
+            else:
+                cv2.imshow(label, Plate)
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -894,30 +960,31 @@ A = ImageGenerator(img_dir)
 num_img = args.num
 Save = args.save
 
-A.Type_1(num_img, save=Save)
-print("Type 1 finish")
-A.Type_1_2(num_img, save=Save)
-print("Type 1_2 finish")
-A.Type_1_3(num_img, save=Save)
-print("Type 1_3 finish")
-A.Type_1_4(num_img, save=Save)
-print("Type 1_4 finish")
-"""
-A.Type_2(num_img, save=Save)
-print("Type 2 finish")
-A.Type_3(num_img, save=Save)
-print("Type 3 finish")
-A.Type_4(num_img, save=Save)
-print("Type 4 finish")
-A.Type_5(num_img, save=Save)
-print("Type 5 finish")
+# A.Type_1(num_img, save=Save)
+# print("Type 1 finish")
+# A.Type_1_2(num_img, save=Save)
+# print("Type 1_2 finish")
+# A.Type_1_3(num_img, save=Save)
+# print("Type 1_3 finish")
+# A.Type_1_4(num_img, save=Save)
+# print("Type 1_4 finish")
 
-A.Type_6(num_img, save=Save)
-print("Type 6 finish")
-A.Type_7(num_img, save=Save)
-print("Type 7 finish")
-A.Type_8(num_img, save=Save)
-print("Type 8 finish")
-A.Type_9(num_img, save=Save)
-print("Type 9 finish")
-"""
+# A.Type_2(num_img, save=Save)
+# print("Type 2 finish")
+# A.Type_3(num_img, save=Save)
+# print("Type 3 finish")
+# A.Type_4(num_img, save=Save)
+# print("Type 4 finish")
+# A.Type_5(num_img, save=Save)
+# print("Type 5 finish")
+
+# A.Type_6(num_img, save=Save)
+# print("Type 6 finish")
+# A.Type_7(num_img, save=Save)
+# print("Type 7 finish")
+# A.Type_8(num_img, save=Save)
+# print("Type 8 finish")
+# A.Type_9(num_img, save=Save)
+# print("Type 9 finish")
+A.Type_10(num_img, save=Save)
+# print("Type 10 finish")
