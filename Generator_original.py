@@ -31,7 +31,6 @@ class ImageGenerator:
         self.new_plate3 = cv2.imread("new_plate3.png")
         self.new_plate4 = cv2.imread("new_plate4.png")
         self.new_plate8 = cv2.imread("new_plate8.png")
-        
 
         # loading Number
         file_path = "./num/"

@@ -14,6 +14,7 @@ def random_bright(img: np.ndarray) -> np.ndarray:
     img[:, :, 2][img[:, :, 2] > 255] = 255
     img = np.array(img, dtype=np.uint8)
     img = cv2.cvtColor(img, cv2.COLOR_HSV2RGB)
+
     return img
 
 
@@ -142,7 +143,7 @@ class ImageGenerator:
             self.resion_list_g.append(file[0:-4])
         # =========================================================================
 
-    def yellow_long(self, num, save=False):
+    def yellow_long(self, num: int, save: bool = False):
         number = [cv2.resize(number, (56, 83)) for number in self.Number_y]
         resion = [cv2.resize(resion, (56, 83)) for resion in self.Region_py]
         char = [cv2.resize(char1, (60, 83)) for char1 in self.Char1_y]
@@ -156,49 +157,118 @@ class ImageGenerator:
             # number 1
             rand_int = random.randint(0, len(resion) - 1)
             label += self.region_list_py[rand_int]
-            Plate[row: row + 83, col: col + 56, :] = resion[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = resion[rand_int]
             col += 56
 
             # number 2
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row: row + 83, col: col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # number 3
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row: row + 83, col: col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # character 3
             rand_int = random.randint(0, len(char) - 1)
             label += self.char_list_y[rand_int]
-            Plate[row: row + 83, col: col + 60, :] = char[rand_int]
+            Plate[row : row + 83, col : col + 60, :] = char[rand_int]
             col += 60 + 36
 
             # number 4
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row: row + 83, col: col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # number 5
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row: row + 83, col: col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # number 6
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row: row + 83, col: col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
 
             # number 7
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row: row + 83, col: col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
+            col += 56
+            Plate = random_bright(Plate)
+
+            if save:
+                cv2.imwrite(self.save_path + label + ".jpg", Plate)
+
+            else:
+                cv2.imshow(label, Plate)
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
+
+    def electronic_long(self, num: int, save: bool = False):
+        # TODO: Add transparent chars and numbers
+        number = [cv2.resize(number, (56, 83)) for number in self.Number]
+        resion = [cv2.resize(resion, (56, 83)) for resion in self.Region]
+        char = [cv2.resize(char1, (60, 83)) for char1 in self.Char1_y]
+
+        for i, Iter in enumerate(range(num)):
+            Plate = cv2.resize(self.plate_elec, (520 + 56, 110))
+            label = "Z"
+            # row -> y , col -> x
+            row, col = 13, 35  # row + 83, col + 56
+
+            # number 1
+            rand_int = random.randint(0, len(resion) - 1)
+            label += self.region_list_py[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = resion[rand_int]
+            col += 56
+
+            # number 2
+            rand_int = random.randint(0, 9)
+            label += self.number_list_y[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
+            col += 56
+
+            # number 3
+            rand_int = random.randint(0, 9)
+            label += self.number_list_y[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
+            col += 56
+
+            # character 3
+            rand_int = random.randint(0, len(char) - 1)
+            label += self.char_list_y[rand_int]
+            Plate[row : row + 83, col : col + 60, :] = char[rand_int]
+            col += 60 + 36
+
+            # number 4
+            rand_int = random.randint(0, 9)
+            label += self.number_list_y[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
+            col += 56
+
+            # number 5
+            rand_int = random.randint(0, 9)
+            label += self.number_list_y[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
+            col += 56
+
+            # number 6
+            rand_int = random.randint(0, 9)
+            label += self.number_list_y[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
+            col += 56
+
+            # number 7
+            rand_int = random.randint(0, 9)
+            label += self.number_list_y[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
             col += 56
             Plate = random_bright(Plate)
 
@@ -227,3 +297,4 @@ if __name__ == "__main__":
     Save = args.save
 
     A.yellow_long(num_img, save=Save)
+    A.electronic_long(num_img, save=Save)
