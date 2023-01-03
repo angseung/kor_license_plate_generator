@@ -1,5 +1,7 @@
-import os, random
-import cv2, argparse
+import os
+import random
+import cv2
+import argparse
 import numpy as np
 
 
@@ -85,6 +87,17 @@ class ImageGenerator:
             img = cv2.imread(img_path)
             self.Resion_y.append(img)
             self.resion_list_y.append(file[0:-4])
+
+        # loading vertical Region
+        file_path = "./region_py/"
+        file_list = os.listdir(file_path)
+        self.Resion_py = list()
+        self.resion_list_py = list()
+        for file in file_list:
+            img_path = os.path.join(file_path, file)
+            img = cv2.imread(img_path)
+            self.Resion_py.append(img)
+            self.resion_list_py.append(file[0:-4])
         # =========================================================================
 
         # loading Number ====================  green-two-line  ==========================
@@ -754,7 +767,7 @@ class ImageGenerator:
 
     def Type_8(self, num, save=False):
         number = [cv2.resize(number, (56, 83)) for number in self.Number_y]
-        resion = [cv2.resize(resion, (88, 60)) for resion in self.Resion_y]
+        resion = [cv2.resize(resion, (56, 83)) for resion in self.Resion_py]
         char = [cv2.resize(char1, (60, 83)) for char1 in self.Char1_y]
 
         for i, Iter in enumerate(range(num)):
@@ -765,7 +778,7 @@ class ImageGenerator:
             # number 1
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
+            Plate[row : row + 83, col : col + 56, :] = resion[-1]
             col += 56
 
             # number 2
@@ -947,7 +960,7 @@ class ImageGenerator:
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "-i", "--img_dir", help="save image directory", type=str, default="../DB/train/"
+    "-i", "--img_dir", help="save image directory", type=str, default="./DB/"
 )
 parser.add_argument("-n", "--num", help="number of image", type=int)
 parser.add_argument("-s", "--save", help="save or imshow", type=bool, default=True)
@@ -982,9 +995,9 @@ Save = args.save
 # print("Type 6 finish")
 # A.Type_7(num_img, save=Save)
 # print("Type 7 finish")
-# A.Type_8(num_img, save=Save)
+A.Type_8(num_img, save=Save)
 # print("Type 8 finish")
 # A.Type_9(num_img, save=Save)
 # print("Type 9 finish")
-A.Type_10(num_img, save=Save)
+# A.Type_10(num_img, save=Save)
 # print("Type 10 finish")
