@@ -27,6 +27,7 @@ class ImageGenerator:
         self.plate = cv2.imread("plate.jpg")
         self.plate2 = cv2.imread("plate_y.jpg")
         self.plate3 = cv2.imread("plate_g.jpg")
+        self.plate_elec = cv2.imread("plate_e.jpg")
         self.new_plate1 = cv2.imread("new_plate1.png")
         self.new_plate2 = cv2.imread("new_plate2.png")
         self.new_plate3 = cv2.imread("new_plate3.png")
