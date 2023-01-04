@@ -195,49 +195,57 @@ class ImageGenerator:
             # number 1
             rand_int = random.randint(0, len(resion) - 1)
             label += self.region_list_py[rand_int]
-            Plate[row : row + 83, col : col + 56, :] = resion[rand_int]
+            w, h = resion[rand_int].shape[:2]
+            Plate[row : row + w, col : col + h, :] = resion[rand_int]
             col += 56
 
             # number 2
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
+            w, h = number[rand_int].shape[:2]
+            Plate[row : row + w, col : col + h, :] = number[rand_int]
             col += 56
 
             # number 3
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
+            w, h = number[rand_int].shape[:2]
+            Plate[row : row + w, col : col + h, :] = number[rand_int]
             col += 56
 
             # character 3
             rand_int = random.randint(0, len(char) - 1)
             label += self.char_list_y[rand_int]
-            Plate[row : row + 83, col : col + 60, :] = char[rand_int]
+            w, h = char[rand_int].shape[:2]
+            Plate[row : row + w, col : col + h, :] = char[rand_int]
             col += 60 + 36
 
             # number 4
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
+            w, h = number[rand_int].shape[:2]
+            Plate[row : row + w, col : col + h, :] = number[rand_int]
             col += 56
 
             # number 5
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
+            w, h = number[rand_int].shape[:2]
+            Plate[row : row + w, col : col + h, :] = number[rand_int]
             col += 56
 
             # number 6
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
+            w, h = number[rand_int].shape[:2]
+            Plate[row : row + w, col : col + h, :] = number[rand_int]
             col += 56
 
             # number 7
             rand_int = random.randint(0, 9)
             label += self.number_list_y[rand_int]
-            Plate[row : row + 83, col : col + 56, :] = number[rand_int]
+            w, h = number[rand_int].shape[:2]
+            Plate[row : row + w, col : col + h, :] = number[rand_int]
             col += 56
             Plate = random_bright(Plate)
 
@@ -252,14 +260,12 @@ class ImageGenerator:
     def electronic_long(self, num: int, save: bool = False):
         number = [cv2.resize(number, (56, 83)) for number in self.Number_tr]
         char = [cv2.resize(char1, (60, 83)) for char1 in self.Char_tr]
-        Plate = cv2.resize(self.plate_elec, (590, 160))
-        # Plate = cv2.cvtColor(Plate, cv2.COLOR_BGR2BGRA)
-        # Plate[:, :, 3] = 255
 
         for i, Iter in enumerate(range(num)):
+            Plate = cv2.resize(self.plate_elec, (590, 160))
             label = "Z"
             # row -> y , col -> x
-            row, col = 25, 80  # row + 83, col + 56
+            row, col = 28, 80  # row + 83, col + 56
             # number 1
             rand_int = random.randint(0, 9)
             label += self.number_list_tr[rand_int]
@@ -357,5 +363,5 @@ if __name__ == "__main__":
     num_img = args.num
     Save = args.save
 
-    # A.yellow_long(num_img, save=Save)
+    A.yellow_long(num_img, save=Save)
     A.electronic_long(num_img, save=Save)
