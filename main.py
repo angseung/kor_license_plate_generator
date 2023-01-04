@@ -1,4 +1,3 @@
-import numpy as np
 from plate_generator import ImageGenerator
 
 generator = ImageGenerator(save_path="./DB")
@@ -21,23 +20,23 @@ for char in range(39):
 
 # electronic long
 for char in range(39):
-    for _ in range(iters):
+    for _ in range(iters * 3):
         generator.electronic_long(char, True)
 
 # yellow long
 for char in range(40):
     for region in range(17):
-        for _ in range(iters):
+        for _ in range(int(iters * 1.5)):
             generator.yellow_long(region, char, True)
 
 # yellow short
 for char in range(40):
     for region in range(17):
-        for _ in range(iters):
+        for _ in range(int(iters * 1.5)):
             generator.yellow_short(region, char, True)
 
 # green short
 for char in range(39):
     for region in range(16):
-        for _ in range(iters):
+        for _ in range(iters * 3):
             generator.green_short(region, char, True)
