@@ -47,7 +47,7 @@ def make_bboxes(
     return f"{label} {xtl / w_bg} {ytl / h_bg} {xbr / w_bg} {ybr / h_bg}"
 
 
-def write_label(target_dir: str, fname: str, *bboxes):
+def write_label(target_dir: str, fname: str, *bboxes: List[str]) -> None:
     if not os.path.isdir(f"{target_dir}/labels"):
         os.mkdir(f"{target_dir}/labels")
 
@@ -79,142 +79,142 @@ class ImageGenerator:
         # loading Number
         file_path = "./num/"
         file_list = os.listdir(file_path)
-        self.Number = list()
+        self.number = list()
         self.number_list = list()
 
         for file in file_list:
             img_path = os.path.join(file_path, file)
             img = cv2.imread(img_path)
-            self.Number.append(img)
+            self.number.append(img)
             self.number_list.append(file[0:-4])
 
         # loading Char
         file_path = "./char1/"
         file_list = os.listdir(file_path)
         self.char_list = list()
-        self.Char1 = list()
+        self.char1 = list()
 
         for file in file_list:
             img_path = os.path.join(file_path, file)
             img = cv2.imread(img_path)
-            self.Char1.append(img)
+            self.char1.append(img)
             self.char_list.append(file[0:-4])
 
         # loading Number ====================  yellow-two-line  ==========================
         file_path = "./num_y/"
         file_list = os.listdir(file_path)
-        self.Number_y = list()
+        self.number_y = list()
         self.number_list_y = list()
 
         for file in file_list:
             img_path = os.path.join(file_path, file)
             img = cv2.imread(img_path)
-            self.Number_y.append(img)
+            self.number_y.append(img)
             self.number_list_y.append(file[0:-4])
 
         # loading Char
         file_path = "./char1_y/"
         file_list = os.listdir(file_path)
         self.char_list_y = list()
-        self.Char1_y = list()
+        self.char1_y = list()
 
         for file in file_list:
             img_path = os.path.join(file_path, file)
             img = cv2.imread(img_path)
-            self.Char1_y.append(img)
+            self.char1_y.append(img)
             self.char_list_y.append(file[0:-4])
 
         # loading Region
         file_path = "./region_y/"
         file_list = os.listdir(file_path)
-        self.Region_y = list()
+        self.region_y = list()
         self.region_list_y = list()
 
         for file in file_list:
             img_path = os.path.join(file_path, file)
             img = cv2.imread(img_path)
-            self.Region_y.append(img)
+            self.region_y.append(img)
             self.region_list_y.append(file[0:-4])
 
         # loading vertical Region
         file_path = "./region_py/"
         file_list = os.listdir(file_path)
-        self.Region_py = list()
+        self.region_py = list()
         self.region_list_py = list()
 
         for file in file_list:
             img_path = os.path.join(file_path, file)
             img = cv2.imread(img_path)
-            self.Region_py.append(img)
+            self.region_py.append(img)
             self.region_list_py.append(file[0:-4])
         # =========================================================================
 
         # loading Number ====================  green-two-line  ==========================
         file_path = "./num_g/"
         file_list = os.listdir(file_path)
-        self.Number_g = list()
+        self.number_g = list()
         self.number_list_g = list()
 
         for file in file_list:
             img_path = os.path.join(file_path, file)
             img = cv2.imread(img_path)
-            self.Number_g.append(img)
+            self.number_g.append(img)
             self.number_list_g.append(file[0:-4])
 
         # loading Char
         file_path = "./char1_g/"
         file_list = os.listdir(file_path)
         self.char_list_g = list()
-        self.Char1_g = list()
+        self.char1_g = list()
 
         for file in file_list:
             img_path = os.path.join(file_path, file)
             img = cv2.imread(img_path)
-            self.Char1_g.append(img)
+            self.char1_g.append(img)
             self.char_list_g.append(file[0:-4])
 
-        # loading Resion
+        # loading green Region
         file_path = "./region_g/"
         file_list = os.listdir(file_path)
-        self.Region_g = list()
+        self.region_g = list()
         self.region_list_g = list()
 
         for file in file_list:
             img_path = os.path.join(file_path, file)
             img = cv2.imread(img_path)
-            self.Region_g.append(img)
+            self.region_g.append(img)
             self.region_list_g.append(file[0:-4])
         # =========================================================================
 
         # loading transparent images for electronic car number plate
         file_path = "./num_tr/"
         file_list = os.listdir(file_path)
-        self.Number_tr = list()
+        self.number_tr = list()
         self.number_list_tr = list()
 
         for file in file_list:
             img_path = os.path.join(file_path, file)
             img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
-            self.Number_tr.append(img)
+            self.number_tr.append(img)
             self.number_list_tr.append(file[0:-4])
 
         # loading Char
         file_path = "./char_tr/"
         file_list = os.listdir(file_path)
         self.char_list_tr = list()
-        self.Char_tr = list()
+        self.char_tr = list()
 
         for file in file_list:
             img_path = os.path.join(file_path, file)
             img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
-            self.Char_tr.append(img)
+            self.char_tr.append(img)
             self.char_list_tr.append(file[0:-4])
 
     def green_short(self, region_label: int, char_label: int, save: bool = True):
-        number_g = [cv2.resize(number, (44, 60)) for number in self.Number_g]
-        number2_g = [cv2.resize(number, (64, 90)) for number in self.Number_g]
-        resion_g = [cv2.resize(resion, (88, 60)) for resion in self.Region_g]
-        char_g = [cv2.resize(char1, (64, 62)) for char1 in self.Char1_g]
+        number_g = [cv2.resize(number, (44, 60)) for number in self.number_g]
+        number2_g = [cv2.resize(number, (64, 90)) for number in self.number_g]
+        resion_g = [cv2.resize(resion, (88, 60)) for resion in self.region_g]
+        char_g = [cv2.resize(char1, (64, 62)) for char1 in self.char1_g]
 
         plate = cv2.resize(self.plate3, (336, 170))
         label = "Z"
@@ -247,7 +247,7 @@ class ImageGenerator:
 
         # number 2
         rand_int = random.randint(0, 9)
-        label += self.number_list_y[rand_int]
+        label += self.number_list_g[rand_int]
         w, h = number_g[rand_int].shape[:2]
         plate[row : row + w, col : col + h, :] = number_g[rand_int]
         bboxes.append(make_bboxes(plate, number_g[rand_int], rand_int, row, col))
@@ -255,14 +255,14 @@ class ImageGenerator:
         row, col = 72, 8
 
         # character 3
-        label += self.char_list_y[char_label]
+        label += self.char_list_g[char_label]
         w, h = char_g[char_label].shape[:2]
         plate[row : row + w, col : col + h, :] = char_g[char_label]
         bboxes.append(
             make_bboxes(
                 plate,
                 char_g[char_label],
-                self.class_dict[self.char_list_y[char_label]],
+                self.class_dict[self.char_list_g[char_label]],
                 row,
                 col,
             )
@@ -271,7 +271,7 @@ class ImageGenerator:
 
         # number 4
         rand_int = random.randint(0, 9)
-        label += self.number_list_y[rand_int]
+        label += self.number_list_g[rand_int]
         w, h = number2_g[rand_int].shape[:2]
         plate[row : row + w, col : col + h, :] = number2_g[rand_int]
         bboxes.append(make_bboxes(plate, number2_g[rand_int], rand_int, row, col))
@@ -279,7 +279,7 @@ class ImageGenerator:
 
         # number 5
         rand_int = random.randint(0, 9)
-        label += self.number_list_y[rand_int]
+        label += self.number_list_g[rand_int]
         w, h = number2_g[rand_int].shape[:2]
         plate[row : row + w, col : col + h, :] = number2_g[rand_int]
         bboxes.append(make_bboxes(plate, number2_g[rand_int], rand_int, row, col))
@@ -287,7 +287,7 @@ class ImageGenerator:
 
         # number 6
         rand_int = random.randint(0, 9)
-        label += self.number_list_y[rand_int]
+        label += self.number_list_g[rand_int]
         w, h = number2_g[rand_int].shape[:2]
         plate[row : row + w, col : col + h, :] = number2_g[rand_int]
         bboxes.append(make_bboxes(plate, number2_g[rand_int], rand_int, row, col))
@@ -295,7 +295,7 @@ class ImageGenerator:
 
         # number 7
         rand_int = random.randint(0, 9)
-        label += self.number_list_y[rand_int]
+        label += self.number_list_g[rand_int]
         w, h = number2_g[rand_int].shape[:2]
         plate[row : row + w, col : col + h, :] = number2_g[rand_int]
         bboxes.append(make_bboxes(plate, number2_g[rand_int], rand_int, row, col))
@@ -313,9 +313,9 @@ class ImageGenerator:
             cv2.destroyAllWindows()
 
     def yellow_long(self, region_label: int, char_label: int, save: bool = True):
-        number_y = [cv2.resize(number, (56, 83)) for number in self.Number_y]
-        resion_py = [cv2.resize(resion, (56, 83)) for resion in self.Region_py]
-        char_y = [cv2.resize(char1, (60, 83)) for char1 in self.Char1_y]
+        number_y = [cv2.resize(number, (56, 83)) for number in self.number_y]
+        region_py = [cv2.resize(region, (56, 83)) for region in self.region_py]
+        char_y = [cv2.resize(char1, (60, 83)) for char1 in self.char1_y]
 
         plate = cv2.resize(self.plate2, (520 + 56, 110))
         label = "Z"
@@ -325,12 +325,12 @@ class ImageGenerator:
 
         # number 1
         label += self.region_list_py[region_label]
-        w, h = resion_py[region_label].shape[:2]
-        plate[row : row + w, col : col + h, :] = resion_py[region_label]
+        w, h = region_py[region_label].shape[:2]
+        plate[row : row + w, col : col + h, :] = region_py[region_label]
         bboxes.append(
             make_bboxes(
                 plate,
-                resion_py[region_label],
+                region_py[region_label],
                 self.class_dict[self.region_list_py[region_label]],
                 row,
                 col,
@@ -413,10 +413,10 @@ class ImageGenerator:
             cv2.destroyAllWindows()
 
     def yellow_short(self, region_label: int, char_label: int, save: bool = True):
-        number_y = [cv2.resize(number, (44, 60)) for number in self.Number_y]
-        number2_y = [cv2.resize(number, (64, 90)) for number in self.Number_y]
-        resion_py = [cv2.resize(resion, (88, 60)) for resion in self.Region_y]
-        char_y = [cv2.resize(char1, (64, 62)) for char1 in self.Char1_y]
+        number_y = [cv2.resize(number, (44, 60)) for number in self.number_y]
+        number2_y = [cv2.resize(number, (64, 90)) for number in self.number_y]
+        region_y = [cv2.resize(region, (88, 60)) for region in self.region_y]
+        char_y = [cv2.resize(char1, (64, 62)) for char1 in self.char1_y]
 
         plate = cv2.resize(self.plate2, (336, 170))
         label = "Z"
@@ -426,12 +426,12 @@ class ImageGenerator:
 
         # region
         label += self.region_list_py[region_label]
-        w, h = resion_py[region_label].shape[:2]
-        plate[row : row + w, col : col + h, :] = resion_py[region_label]
+        w, h = region_y[region_label].shape[:2]
+        plate[row : row + w, col : col + h, :] = region_y[region_label]
         bboxes.append(
             make_bboxes(
                 plate,
-                resion_py[region_label],
+                region_y[region_label],
                 self.class_dict[self.region_list_py[region_label]],
                 row,
                 col,
@@ -515,39 +515,40 @@ class ImageGenerator:
             cv2.destroyAllWindows()
 
     def electronic_long(self, char_label: int, save: bool = True):
-        number_elec = [cv2.resize(number, (56, 83)) for number in self.Number_tr]
-        char_elec = [cv2.resize(char1, (60, 83)) for char1 in self.Char_tr]
+        number_tr = [cv2.resize(number, (56, 83)) for number in self.number_tr]
+        char_tr = [cv2.resize(char1, (60, 83)) for char1 in self.char_tr]
         bboxes = []
 
         plate = cv2.resize(self.plate_elec, (590, 160))
         label = "Z"
         # row -> y , col -> x
         row, col = 28, 80  # row + 83, col + 56
+
         # number 1
         rand_int = random.randint(0, 9)
         label += self.number_list_tr[rand_int]
-        fg = number_elec[rand_int]
+        fg = number_tr[rand_int]
         added = blend_argb_with_rgb(fg, plate, row, col)
         w, h = added.shape[:2]
 
         plate[row : row + w, col : col + h, :] = added
-        bboxes.append(make_bboxes(plate, number_elec[rand_int], rand_int, row, col))
+        bboxes.append(make_bboxes(plate, number_tr[rand_int], rand_int, row, col))
         col += 56
 
         # number 2
         rand_int = random.randint(0, 9)
         label += self.number_list_tr[rand_int]
-        fg = number_elec[rand_int]
+        fg = number_tr[rand_int]
         added = blend_argb_with_rgb(fg, plate, row, col)
         w, h = added.shape[:2]
 
         plate[row : row + w, col : col + h, :] = added
-        bboxes.append(make_bboxes(plate, number_elec[rand_int], rand_int, row, col))
+        bboxes.append(make_bboxes(plate, number_tr[rand_int], rand_int, row, col))
         col += 56
 
         # character 3
         label += self.char_list_tr[char_label]
-        fg = char_elec[char_label]
+        fg = char_tr[char_label]
         added = blend_argb_with_rgb(fg, plate, row, col)
         w, h = added.shape[:2]
 
@@ -555,7 +556,7 @@ class ImageGenerator:
         bboxes.append(
             make_bboxes(
                 plate,
-                char_elec[char_label],
+                char_tr[char_label],
                 self.class_dict[self.char_list_tr[char_label]],
                 row,
                 col,
@@ -566,54 +567,53 @@ class ImageGenerator:
         # number 4
         rand_int = random.randint(0, 9)
         label += self.number_list_tr[rand_int]
-        fg = number_elec[rand_int]
+        fg = number_tr[rand_int]
         added = blend_argb_with_rgb(fg, plate, row, col)
         w, h = added.shape[:2]
 
         plate[row : row + w, col : col + h, :] = added
-        bboxes.append(make_bboxes(plate, number_elec[rand_int], rand_int, row, col))
+        bboxes.append(make_bboxes(plate, number_tr[rand_int], rand_int, row, col))
         col += 56
 
         # number 5
         rand_int = random.randint(0, 9)
         label += self.number_list_tr[rand_int]
-        fg = number_elec[rand_int]
+        fg = number_tr[rand_int]
         added = blend_argb_with_rgb(fg, plate, row, col)
         w, h = added.shape[:2]
 
         plate[row : row + w, col : col + h, :] = added
-        bboxes.append(make_bboxes(plate, number_elec[rand_int], rand_int, row, col))
+        bboxes.append(make_bboxes(plate, number_tr[rand_int], rand_int, row, col))
         col += 56
 
         # number 6
         rand_int = random.randint(0, 9)
         label += self.number_list_tr[rand_int]
-        fg = number_elec[rand_int]
+        fg = number_tr[rand_int]
         added = blend_argb_with_rgb(fg, plate, row, col)
         w, h = added.shape[:2]
 
         plate[row : row + w, col : col + h, :] = added
-        bboxes.append(make_bboxes(plate, number_elec[rand_int], rand_int, row, col))
+        bboxes.append(make_bboxes(plate, number_tr[rand_int], rand_int, row, col))
         col += 56
 
         # number 7
         rand_int = random.randint(0, 9)
         label += self.number_list_tr[rand_int]
-        fg = number_elec[rand_int]
+        fg = number_tr[rand_int]
         added = blend_argb_with_rgb(fg, plate, row, col)
         w, h = added.shape[:2]
 
         plate[row : row + w, col : col + h, :] = added
-        bboxes.append(make_bboxes(plate, number_elec[rand_int], rand_int, row, col))
+        bboxes.append(make_bboxes(plate, number_tr[rand_int], rand_int, row, col))
         col += 56
-        # Plate = random_bright(Plate)
+
         plate = random_bright(plate)
 
         write_label(self.save_path, label, *bboxes)
 
-        # 2자리 번호판 맨뒤에label 전용 X 삽입
+        # 2자리 번호판 맨 뒤에 label 전용 X 삽입
         if save:
-            # cv2.imwrite(self.save_path + label + "X.jpg", Plate)
             cv2.imwrite(self.save_path + "/" + label + "X.jpg", plate)
 
         else:
@@ -622,8 +622,8 @@ class ImageGenerator:
             cv2.destroyAllWindows()
 
     def white_long_2digits(self, char_label: int, save: bool = True):
-        number = [cv2.resize(number, (56, 83)) for number in self.Number]
-        char = [cv2.resize(char1, (60, 83)) for char1 in self.Char1]
+        number = [cv2.resize(number, (56, 83)) for number in self.number]
+        char = [cv2.resize(char1, (60, 83)) for char1 in self.char1]
 
         plate = cv2.resize(self.new_plate1, (520, 110))
         bboxes = []
@@ -692,7 +692,7 @@ class ImageGenerator:
 
         write_label(self.save_path, label, *bboxes)
 
-        # 2자리 번호판 맨뒤에label 전용 X 삽입
+        # 2자리 번호판 맨 뒤에 label 전용 X 삽입
         if save:
             cv2.imwrite(self.save_path + "/" + label + "X.jpg", plate)
 
@@ -702,8 +702,8 @@ class ImageGenerator:
             cv2.destroyAllWindows()
 
     def white_long_3digits(self, char_label: int, save: bool = True):
-        number = [cv2.resize(number, (56, 83)) for number in self.Number]
-        char = [cv2.resize(char1, (60, 83)) for char1 in self.Char1]
+        number = [cv2.resize(number, (56, 83)) for number in self.number]
+        char = [cv2.resize(char1, (60, 83)) for char1 in self.char1]
 
         plate = cv2.resize(self.plate, (520 + 56, 110))
         bboxes = []
@@ -779,7 +779,7 @@ class ImageGenerator:
 
         write_label(self.save_path, label, *bboxes)
 
-        # 2자리 번호판 맨뒤에label 전용 X 삽입
+        # 2자리 번호판 맨 뒤에 label 전용 X 삽입
         if save:
             cv2.imwrite(self.save_path + "/" + label + "X.jpg", plate)
 
@@ -789,8 +789,8 @@ class ImageGenerator:
             cv2.destroyAllWindows()
 
     def white_short_2digits(self, char_label: int, save: bool = True):
-        number = [cv2.resize(number, (45, 83)) for number in self.Number]
-        char = [cv2.resize(char1, (49, 70)) for char1 in self.Char1]
+        number = [cv2.resize(number, (45, 83)) for number in self.number]
+        char = [cv2.resize(char1, (49, 70)) for char1 in self.char1]
 
         plate = cv2.resize(self.plate, (355, 155))
         bboxes = []
