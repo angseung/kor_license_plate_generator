@@ -4,6 +4,7 @@ import argparse
 from typing import List, Union, Tuple
 import cv2
 import numpy as np
+from class_labels import class_dict
 
 
 def random_bright(img: np.ndarray) -> np.ndarray:
@@ -18,18 +19,43 @@ def random_bright(img: np.ndarray) -> np.ndarray:
     return img
 
 
-def blend_argb_with_rgb(fg: np.ndarray, bg: np.ndarray, row: int, col: int) -> np.ndarray:
+def blend_argb_with_rgb(
+    fg: np.ndarray, bg: np.ndarray, row: int, col: int
+) -> np.ndarray:
     _, mask = cv2.threshold(fg[:, :, 3], 1, 255, cv2.THRESH_BINARY)
     mask_inv = cv2.bitwise_not(mask)
     img_fg = cv2.cvtColor(fg, cv2.COLOR_BGRA2BGR)
     h, w = img_fg.shape[:2]
-    roi = bg[row: row + h, col: col + w]
+    roi = bg[row : row + h, col : col + w]
 
     masked_fg = cv2.bitwise_and(img_fg, img_fg, mask=mask)
     masked_bg = cv2.bitwise_and(roi, roi, mask=mask_inv)
-    added = masked_fg + masked_bg
+    blended = masked_fg + masked_bg
 
-    return added
+    return blended
+
+
+def make_bboxes(
+    img: np.ndarray, obj: np.ndarray, label: int, xtl: int, ytl: int
+) -> str:
+    w, h = obj.shape[:2]
+    xbr = xtl + w
+    ybr = ytl + h
+
+    w_bg, h_bg = img.shape[:2]
+
+    return f"{label} {xtl / w_bg} {ytl / h_bg} {xbr / w_bg} {ybr / h_bg}"
+
+
+def write_label(target_dir: str, fname: str, *bboxes):
+    if not os.path.isdir(f"{target_dir}/labels"):
+        os.mkdir(f"{target_dir}/labels")
+
+    num_boxes = len(bboxes)
+
+    with open(f"{target_dir}/labels/{fname}.txt", "w") as f:
+        for i in range(num_boxes):
+            f.write(f"{bboxes[i]}\n")
 
 
 class ImageGenerator:
@@ -48,6 +74,7 @@ class ImageGenerator:
         self.new_plate3 = cv2.imread("new_plate3.png")
         self.new_plate4 = cv2.imread("new_plate4.png")
         self.new_plate8 = cv2.imread("new_plate8.png")
+        self.class_dict = class_dict
 
         # loading Number
         file_path = "./num/"
@@ -66,6 +93,7 @@ class ImageGenerator:
         file_list = os.listdir(file_path)
         self.char_list = list()
         self.Char1 = list()
+
         for file in file_list:
             img_path = os.path.join(file_path, file)
             img = cv2.imread(img_path)
@@ -77,6 +105,7 @@ class ImageGenerator:
         file_list = os.listdir(file_path)
         self.Number_y = list()
         self.number_list_y = list()
+
         for file in file_list:
             img_path = os.path.join(file_path, file)
             img = cv2.imread(img_path)
@@ -147,14 +176,14 @@ class ImageGenerator:
         # loading Resion
         file_path = "./region_g/"
         file_list = os.listdir(file_path)
-        self.Resion_g = list()
-        self.resion_list_g = list()
+        self.Region_g = list()
+        self.region_list_g = list()
 
         for file in file_list:
             img_path = os.path.join(file_path, file)
             img = cv2.imread(img_path)
-            self.Resion_g.append(img)
-            self.resion_list_g.append(file[0:-4])
+            self.Region_g.append(img)
+            self.region_list_g.append(file[0:-4])
         # =========================================================================
 
         # loading transparent images for electronic car number plate
@@ -166,7 +195,6 @@ class ImageGenerator:
         for file in file_list:
             img_path = os.path.join(file_path, file)
             img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
-            # img[:, :, 3] = 255
             self.Number_tr.append(img)
             self.number_list_tr.append(file[0:-4])
 
@@ -175,183 +203,676 @@ class ImageGenerator:
         file_list = os.listdir(file_path)
         self.char_list_tr = list()
         self.Char_tr = list()
+
         for file in file_list:
             img_path = os.path.join(file_path, file)
             img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
             self.Char_tr.append(img)
             self.char_list_tr.append(file[0:-4])
 
-    def yellow_long(self, num: int, save: bool = False):
-        number = [cv2.resize(number, (56, 83)) for number in self.Number_y]
-        resion = [cv2.resize(resion, (56, 83)) for resion in self.Region_py]
-        char = [cv2.resize(char1, (60, 83)) for char1 in self.Char1_y]
+    def green_short(self, region_label: int, char_label: int, save: bool = True):
+        number_g = [cv2.resize(number, (44, 60)) for number in self.Number_g]
+        number2_g = [cv2.resize(number, (64, 90)) for number in self.Number_g]
+        resion_g = [cv2.resize(resion, (88, 60)) for resion in self.Region_g]
+        char_g = [cv2.resize(char1, (64, 62)) for char1 in self.Char1_g]
 
-        for i, Iter in enumerate(range(num)):
-            Plate = cv2.resize(self.plate2, (520 + 56, 110))
-            label = "Z"
-            # row -> y , col -> x
-            row, col = 13, 35  # row + 83, col + 56
+        plate = cv2.resize(self.plate3, (336, 170))
+        label = "Z"
+        # row -> y , col -> x
+        row, col = 8, 76  # row + 83, col + 56
+        bboxes = []
 
-            # number 1
-            rand_int = random.randint(0, len(resion) - 1)
-            label += self.region_list_py[rand_int]
-            w, h = resion[rand_int].shape[:2]
-            Plate[row : row + w, col : col + h, :] = resion[rand_int]
-            col += 56
+        # region
+        label += self.region_list_g[region_label]
+        w, h = resion_g[region_label].shape[:2]
+        plate[row : row + w, col : col + h, :] = resion_g[region_label]
+        bboxes.append(
+            make_bboxes(
+                plate,
+                resion_g[region_label],
+                self.class_dict[self.region_list_g[region_label]],
+                row,
+                col,
+            )
+        )
+        col += 88 + 4
 
-            # number 2
-            rand_int = random.randint(0, 9)
-            label += self.number_list_y[rand_int]
-            w, h = number[rand_int].shape[:2]
-            Plate[row : row + w, col : col + h, :] = number[rand_int]
-            col += 56
+        # number 1
+        rand_int = random.randint(0, 9)
+        label += self.number_list_g[rand_int]
+        w, h = number_g[rand_int].shape[:2]
+        plate[row : row + w, col : col + h, :] = number_g[rand_int]
+        bboxes.append(make_bboxes(plate, number_g[rand_int], rand_int, row, col))
+        col += 44
 
-            # number 3
-            rand_int = random.randint(0, 9)
-            label += self.number_list_y[rand_int]
-            w, h = number[rand_int].shape[:2]
-            Plate[row : row + w, col : col + h, :] = number[rand_int]
-            col += 56
+        # number 2
+        rand_int = random.randint(0, 9)
+        label += self.number_list_y[rand_int]
+        w, h = number_g[rand_int].shape[:2]
+        plate[row : row + w, col : col + h, :] = number_g[rand_int]
+        bboxes.append(make_bboxes(plate, number_g[rand_int], rand_int, row, col))
 
-            # character 3
-            rand_int = random.randint(0, len(char) - 1)
-            label += self.char_list_y[rand_int]
-            w, h = char[rand_int].shape[:2]
-            Plate[row : row + w, col : col + h, :] = char[rand_int]
-            col += 60 + 36
+        row, col = 72, 8
 
-            # number 4
-            rand_int = random.randint(0, 9)
-            label += self.number_list_y[rand_int]
-            w, h = number[rand_int].shape[:2]
-            Plate[row : row + w, col : col + h, :] = number[rand_int]
-            col += 56
+        # character 3
+        label += self.char_list_y[char_label]
+        w, h = char_g[char_label].shape[:2]
+        plate[row : row + w, col : col + h, :] = char_g[char_label]
+        bboxes.append(
+            make_bboxes(
+                plate,
+                char_g[char_label],
+                self.class_dict[self.char_list_y[char_label]],
+                row,
+                col,
+            )
+        )
+        col += 64
 
-            # number 5
-            rand_int = random.randint(0, 9)
-            label += self.number_list_y[rand_int]
-            w, h = number[rand_int].shape[:2]
-            Plate[row : row + w, col : col + h, :] = number[rand_int]
-            col += 56
+        # number 4
+        rand_int = random.randint(0, 9)
+        label += self.number_list_y[rand_int]
+        w, h = number2_g[rand_int].shape[:2]
+        plate[row : row + w, col : col + h, :] = number2_g[rand_int]
+        bboxes.append(make_bboxes(plate, number2_g[rand_int], rand_int, row, col))
+        col += 64
 
-            # number 6
-            rand_int = random.randint(0, 9)
-            label += self.number_list_y[rand_int]
-            w, h = number[rand_int].shape[:2]
-            Plate[row : row + w, col : col + h, :] = number[rand_int]
-            col += 56
+        # number 5
+        rand_int = random.randint(0, 9)
+        label += self.number_list_y[rand_int]
+        w, h = number2_g[rand_int].shape[:2]
+        plate[row : row + w, col : col + h, :] = number2_g[rand_int]
+        bboxes.append(make_bboxes(plate, number2_g[rand_int], rand_int, row, col))
+        col += 64
 
-            # number 7
-            rand_int = random.randint(0, 9)
-            label += self.number_list_y[rand_int]
-            w, h = number[rand_int].shape[:2]
-            Plate[row : row + w, col : col + h, :] = number[rand_int]
-            col += 56
-            Plate = random_bright(Plate)
+        # number 6
+        rand_int = random.randint(0, 9)
+        label += self.number_list_y[rand_int]
+        w, h = number2_g[rand_int].shape[:2]
+        plate[row : row + w, col : col + h, :] = number2_g[rand_int]
+        bboxes.append(make_bboxes(plate, number2_g[rand_int], rand_int, row, col))
+        col += 64
 
-            if save:
-                cv2.imwrite(self.save_path + label + ".jpg", Plate)
+        # number 7
+        rand_int = random.randint(0, 9)
+        label += self.number_list_y[rand_int]
+        w, h = number2_g[rand_int].shape[:2]
+        plate[row : row + w, col : col + h, :] = number2_g[rand_int]
+        bboxes.append(make_bboxes(plate, number2_g[rand_int], rand_int, row, col))
+        col += 64
+        plate = random_bright(plate)
 
-            else:
-                cv2.imshow(label, Plate)
-                cv2.waitKey(0)
-                cv2.destroyAllWindows()
+        write_label(self.save_path, label, *bboxes)
 
-    def electronic_long(self, num: int, save: bool = False):
-        number = [cv2.resize(number, (56, 83)) for number in self.Number_tr]
-        char = [cv2.resize(char1, (60, 83)) for char1 in self.Char_tr]
+        if save:
+            cv2.imwrite(self.save_path + "/" + label + ".jpg", plate)
 
-        for i, Iter in enumerate(range(num)):
-            Plate = cv2.resize(self.plate_elec, (590, 160))
-            label = "Z"
-            # row -> y , col -> x
-            row, col = 28, 80  # row + 83, col + 56
-            # number 1
-            rand_int = random.randint(0, 9)
-            label += self.number_list_tr[rand_int]
-            fg = number[rand_int]
-            added = blend_argb_with_rgb(fg, Plate, row, col)
-            w, h = added.shape[:2]
+        else:
+            cv2.imshow(label, plate)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
 
-            Plate[row : row + w, col : col + h, :] = added
-            col += 56
+    def yellow_long(self, region_label: int, char_label: int, save: bool = True):
+        number_y = [cv2.resize(number, (56, 83)) for number in self.Number_y]
+        resion_py = [cv2.resize(resion, (56, 83)) for resion in self.Region_py]
+        char_y = [cv2.resize(char1, (60, 83)) for char1 in self.Char1_y]
 
-            # number 2
-            rand_int = random.randint(0, 9)
-            label += self.number_list_tr[rand_int]
-            fg = number[rand_int]
-            added = blend_argb_with_rgb(fg, Plate, row, col)
-            w, h = added.shape[:2]
+        plate = cv2.resize(self.plate2, (520 + 56, 110))
+        label = "Z"
+        # row -> y , col -> x
+        row, col = 13, 35  # row + 83, col + 56
+        bboxes = []
 
-            Plate[row : row + w, col : col + h, :] = added
-            col += 56
+        # number 1
+        label += self.region_list_py[region_label]
+        w, h = resion_py[region_label].shape[:2]
+        plate[row : row + w, col : col + h, :] = resion_py[region_label]
+        bboxes.append(
+            make_bboxes(
+                plate,
+                resion_py[region_label],
+                self.class_dict[self.region_list_py[region_label]],
+                row,
+                col,
+            )
+        )
+        col += 56
 
-            # character 3
-            rand_int = random.randint(0, len(char) - 1)
-            label += self.char_list_tr[rand_int]
-            fg = char[rand_int]
-            added = blend_argb_with_rgb(fg, Plate, row, col)
-            w, h = added.shape[:2]
+        # number 2
+        rand_int = random.randint(0, 9)
+        label += self.number_list_y[rand_int]
+        w, h = number_y[rand_int].shape[:2]
+        plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        bboxes.append(make_bboxes(plate, number_y[rand_int], rand_int, row, col))
+        col += 56
 
-            Plate[row : row + w, col : col + h, :] = added
-            col += 60 + 36
+        # number 3
+        rand_int = random.randint(0, 9)
+        label += self.number_list_y[rand_int]
+        w, h = number_y[rand_int].shape[:2]
+        plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        bboxes.append(make_bboxes(plate, number_y[rand_int], rand_int, row, col))
+        col += 56
 
-            # number 4
-            rand_int = random.randint(0, 9)
-            label += self.number_list_tr[rand_int]
-            fg = number[rand_int]
-            added = blend_argb_with_rgb(fg, Plate, row, col)
-            w, h = added.shape[:2]
+        # character 3
+        label += self.char_list_y[char_label]
+        w, h = char_y[char_label].shape[:2]
+        plate[row : row + w, col : col + h, :] = char_y[char_label]
+        bboxes.append(
+            make_bboxes(
+                plate,
+                char_y[char_label],
+                self.class_dict[self.char_list_y[char_label]],
+                row,
+                col,
+            )
+        )
+        col += 60 + 36
 
-            Plate[row : row + w, col : col + h, :] = added
-            col += 56
+        # number 4
+        rand_int = random.randint(0, 9)
+        label += self.number_list_y[rand_int]
+        w, h = number_y[rand_int].shape[:2]
+        plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        bboxes.append(make_bboxes(plate, number_y[rand_int], rand_int, row, col))
+        col += 56
 
-            # number 5
-            rand_int = random.randint(0, 9)
-            label += self.number_list_tr[rand_int]
-            fg = number[rand_int]
-            added = blend_argb_with_rgb(fg, Plate, row, col)
-            w, h = added.shape[:2]
+        # number 5
+        rand_int = random.randint(0, 9)
+        label += self.number_list_y[rand_int]
+        w, h = number_y[rand_int].shape[:2]
+        plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        bboxes.append(make_bboxes(plate, number_y[rand_int], rand_int, row, col))
+        col += 56
 
-            Plate[row : row + w, col : col + h, :] = added
-            col += 56
+        # number 6
+        rand_int = random.randint(0, 9)
+        label += self.number_list_y[rand_int]
+        w, h = number_y[rand_int].shape[:2]
+        plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        bboxes.append(make_bboxes(plate, number_y[rand_int], rand_int, row, col))
+        col += 56
 
-            # number 6
-            rand_int = random.randint(0, 9)
-            label += self.number_list_tr[rand_int]
-            fg = number[rand_int]
-            added = blend_argb_with_rgb(fg, Plate, row, col)
-            w, h = added.shape[:2]
+        # number 7
+        rand_int = random.randint(0, 9)
+        label += self.number_list_y[rand_int]
+        w, h = number_y[rand_int].shape[:2]
+        plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        bboxes.append(make_bboxes(plate, number_y[rand_int], rand_int, row, col))
+        col += 56
+        plate = random_bright(plate)
 
-            Plate[row : row + w, col : col + h, :] = added
-            col += 56
+        write_label(self.save_path, label, *bboxes)
 
-            # number 7
-            rand_int = random.randint(0, 9)
-            label += self.number_list_tr[rand_int]
-            fg = number[rand_int]
-            added = blend_argb_with_rgb(fg, Plate, row, col)
-            w, h = added.shape[:2]
+        if save:
+            cv2.imwrite(self.save_path + "/" + label + ".jpg", plate)
 
-            Plate[row : row + w, col : col + h, :] = added
-            col += 56
-            # Plate = random_bright(Plate)
-            Plate = random_bright(Plate)
-            # 2자리 번호판 맨뒤에label 전용 X 삽입
-            if save:
-                # cv2.imwrite(self.save_path + label + "X.jpg", Plate)
-                cv2.imwrite(self.save_path + label + "X.jpg", Plate)
+        else:
+            cv2.imshow(label, plate)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
 
-            else:
-                cv2.imshow(label, Plate)
-                cv2.waitKey(0)
-                cv2.destroyAllWindows()
+    def yellow_short(self, region_label: int, char_label: int, save: bool = True):
+        number_y = [cv2.resize(number, (44, 60)) for number in self.Number_y]
+        number2_y = [cv2.resize(number, (64, 90)) for number in self.Number_y]
+        resion_py = [cv2.resize(resion, (88, 60)) for resion in self.Region_y]
+        char_y = [cv2.resize(char1, (64, 62)) for char1 in self.Char1_y]
+
+        plate = cv2.resize(self.plate2, (336, 170))
+        label = "Z"
+        # row -> y , col -> x
+        row, col = 8, 76  # row + 83, col + 56
+        bboxes = []
+
+        # region
+        label += self.region_list_py[region_label]
+        w, h = resion_py[region_label].shape[:2]
+        plate[row : row + w, col : col + h, :] = resion_py[region_label]
+        bboxes.append(
+            make_bboxes(
+                plate,
+                resion_py[region_label],
+                self.class_dict[self.region_list_py[region_label]],
+                row,
+                col,
+            )
+        )
+        col += 88 + 4
+
+        # number 1
+        rand_int = random.randint(0, 9)
+        label += self.number_list_y[rand_int]
+        w, h = number_y[rand_int].shape[:2]
+        plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        bboxes.append(make_bboxes(plate, number_y[rand_int], rand_int, row, col))
+        col += 44
+
+        # number 2
+        rand_int = random.randint(0, 9)
+        label += self.number_list_y[rand_int]
+        w, h = number_y[rand_int].shape[:2]
+        plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        bboxes.append(make_bboxes(plate, number_y[rand_int], rand_int, row, col))
+
+        row, col = 72, 8
+
+        # character 3
+        label += self.char_list_y[char_label]
+        w, h = char_y[char_label].shape[:2]
+        plate[row : row + w, col : col + h, :] = char_y[char_label]
+        bboxes.append(
+            make_bboxes(
+                plate,
+                char_y[char_label],
+                self.class_dict[self.char_list_y[char_label]],
+                row,
+                col,
+            )
+        )
+        col += 64
+
+        # number 4
+        rand_int = random.randint(0, 9)
+        label += self.number_list_y[rand_int]
+        w, h = number2_y[rand_int].shape[:2]
+        plate[row : row + w, col : col + h, :] = number2_y[rand_int]
+        bboxes.append(make_bboxes(plate, number2_y[rand_int], rand_int, row, col))
+        col += 64
+
+        # number 5
+        rand_int = random.randint(0, 9)
+        label += self.number_list_y[rand_int]
+        w, h = number2_y[rand_int].shape[:2]
+        plate[row : row + w, col : col + h, :] = number2_y[rand_int]
+        bboxes.append(make_bboxes(plate, number2_y[rand_int], rand_int, row, col))
+        col += 64
+
+        # number 6
+        rand_int = random.randint(0, 9)
+        label += self.number_list_y[rand_int]
+        w, h = number2_y[rand_int].shape[:2]
+        plate[row : row + w, col : col + h, :] = number2_y[rand_int]
+        bboxes.append(make_bboxes(plate, number2_y[rand_int], rand_int, row, col))
+        col += 64
+
+        # number 7
+        rand_int = random.randint(0, 9)
+        label += self.number_list_y[rand_int]
+        w, h = number2_y[rand_int].shape[:2]
+        plate[row : row + w, col : col + h, :] = number2_y[rand_int]
+        bboxes.append(make_bboxes(plate, number2_y[rand_int], rand_int, row, col))
+        col += 64
+        plate = random_bright(plate)
+
+        write_label(self.save_path, label, *bboxes)
+
+        if save:
+            cv2.imwrite(self.save_path + "/" + label + ".jpg", plate)
+
+        else:
+            cv2.imshow(label, plate)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
+    def electronic_long(self, char_label: int, save: bool = True):
+        number_elec = [cv2.resize(number, (56, 83)) for number in self.Number_tr]
+        char_elec = [cv2.resize(char1, (60, 83)) for char1 in self.Char_tr]
+        bboxes = []
+
+        plate = cv2.resize(self.plate_elec, (590, 160))
+        label = "Z"
+        # row -> y , col -> x
+        row, col = 28, 80  # row + 83, col + 56
+        # number 1
+        rand_int = random.randint(0, 9)
+        label += self.number_list_tr[rand_int]
+        fg = number_elec[rand_int]
+        added = blend_argb_with_rgb(fg, plate, row, col)
+        w, h = added.shape[:2]
+
+        plate[row : row + w, col : col + h, :] = added
+        bboxes.append(make_bboxes(plate, number_elec[rand_int], rand_int, row, col))
+        col += 56
+
+        # number 2
+        rand_int = random.randint(0, 9)
+        label += self.number_list_tr[rand_int]
+        fg = number_elec[rand_int]
+        added = blend_argb_with_rgb(fg, plate, row, col)
+        w, h = added.shape[:2]
+
+        plate[row : row + w, col : col + h, :] = added
+        bboxes.append(make_bboxes(plate, number_elec[rand_int], rand_int, row, col))
+        col += 56
+
+        # character 3
+        label += self.char_list_tr[char_label]
+        fg = char_elec[char_label]
+        added = blend_argb_with_rgb(fg, plate, row, col)
+        w, h = added.shape[:2]
+
+        plate[row : row + w, col : col + h, :] = added
+        bboxes.append(
+            make_bboxes(
+                plate,
+                char_elec[char_label],
+                self.class_dict[self.char_list_tr[char_label]],
+                row,
+                col,
+            )
+        )
+        col += 60 + 36
+
+        # number 4
+        rand_int = random.randint(0, 9)
+        label += self.number_list_tr[rand_int]
+        fg = number_elec[rand_int]
+        added = blend_argb_with_rgb(fg, plate, row, col)
+        w, h = added.shape[:2]
+
+        plate[row : row + w, col : col + h, :] = added
+        bboxes.append(make_bboxes(plate, number_elec[rand_int], rand_int, row, col))
+        col += 56
+
+        # number 5
+        rand_int = random.randint(0, 9)
+        label += self.number_list_tr[rand_int]
+        fg = number_elec[rand_int]
+        added = blend_argb_with_rgb(fg, plate, row, col)
+        w, h = added.shape[:2]
+
+        plate[row : row + w, col : col + h, :] = added
+        bboxes.append(make_bboxes(plate, number_elec[rand_int], rand_int, row, col))
+        col += 56
+
+        # number 6
+        rand_int = random.randint(0, 9)
+        label += self.number_list_tr[rand_int]
+        fg = number_elec[rand_int]
+        added = blend_argb_with_rgb(fg, plate, row, col)
+        w, h = added.shape[:2]
+
+        plate[row : row + w, col : col + h, :] = added
+        bboxes.append(make_bboxes(plate, number_elec[rand_int], rand_int, row, col))
+        col += 56
+
+        # number 7
+        rand_int = random.randint(0, 9)
+        label += self.number_list_tr[rand_int]
+        fg = number_elec[rand_int]
+        added = blend_argb_with_rgb(fg, plate, row, col)
+        w, h = added.shape[:2]
+
+        plate[row : row + w, col : col + h, :] = added
+        bboxes.append(make_bboxes(plate, number_elec[rand_int], rand_int, row, col))
+        col += 56
+        # Plate = random_bright(Plate)
+        plate = random_bright(plate)
+
+        write_label(self.save_path, label, *bboxes)
+
+        # 2자리 번호판 맨뒤에label 전용 X 삽입
+        if save:
+            # cv2.imwrite(self.save_path + label + "X.jpg", Plate)
+            cv2.imwrite(self.save_path + "/" + label + "X.jpg", plate)
+
+        else:
+            cv2.imshow(label, plate)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
+    def white_long_2digits(self, char_label: int, save: bool = True):
+        number = [cv2.resize(number, (56, 83)) for number in self.Number]
+        char = [cv2.resize(char1, (60, 83)) for char1 in self.Char1]
+
+        plate = cv2.resize(self.new_plate1, (520, 110))
+        bboxes = []
+        label = "Z"
+        # row -> y , col -> x
+        row, col = 13, 35  # row + 83, col + 56
+
+        # number 1
+        rand_int = random.randint(0, 9)
+        label += self.number_list[rand_int]
+        plate[row : row + 83, col : col + 56, :] = number[rand_int]
+        bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
+        col += 56
+
+        # number 2
+        rand_int = random.randint(0, 9)
+        label += self.number_list[rand_int]
+        plate[row : row + 83, col : col + 56, :] = number[rand_int]
+        bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
+        col += 56
+
+        # character 3
+        label += self.char_list[char_label]
+        w, h = char[char_label].shape[:2]
+        plate[row : row + w, col : col + h, :] = char[char_label]
+        bboxes.append(
+            make_bboxes(
+                plate,
+                char[char_label],
+                self.class_dict[self.char_list[char_label]],
+                row,
+                col,
+            )
+        )
+        col += 60 + 36
+
+        # number 4
+        rand_int = random.randint(0, 9)
+        label += self.number_list[rand_int]
+        plate[row : row + 83, col : col + 56, :] = number[rand_int]
+        bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
+        col += 56
+
+        # number 5
+        rand_int = random.randint(0, 9)
+        label += self.number_list[rand_int]
+        plate[row : row + 83, col : col + 56, :] = number[rand_int]
+        bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
+        col += 56
+
+        # number 6
+        rand_int = random.randint(0, 9)
+        label += self.number_list[rand_int]
+        plate[row : row + 83, col : col + 56, :] = number[rand_int]
+        bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
+        col += 56
+
+        # number 7
+        rand_int = random.randint(0, 9)
+        label += self.number_list[rand_int]
+        plate[row : row + 83, col : col + 56, :] = number[rand_int]
+        bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
+        col += 56
+
+        plate = random_bright(plate)
+
+        write_label(self.save_path, label, *bboxes)
+
+        # 2자리 번호판 맨뒤에label 전용 X 삽입
+        if save:
+            cv2.imwrite(self.save_path + "/" + label + "X.jpg", plate)
+
+        else:
+            cv2.imshow(label, plate)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
+    def white_long_3digits(self, char_label: int, save: bool = True):
+        number = [cv2.resize(number, (56, 83)) for number in self.Number]
+        char = [cv2.resize(char1, (60, 83)) for char1 in self.Char1]
+
+        plate = cv2.resize(self.plate, (520 + 56, 110))
+        bboxes = []
+        label = "Z"
+        # row -> y , col -> x
+        row, col = 13, 35  # row + 83, col + 56
+
+        # number 1
+        rand_int = random.randint(0, 9)
+        label += self.number_list[rand_int]
+        plate[row : row + 83, col : col + 56, :] = number[rand_int]
+        bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
+        col += 56
+
+        # number 2
+        rand_int = random.randint(0, 9)
+        label += self.number_list[rand_int]
+        plate[row : row + 83, col : col + 56, :] = number[rand_int]
+        bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
+        col += 56
+
+        # number 3
+        rand_int = random.randint(0, 9)
+        label += self.number_list[rand_int]
+        plate[row : row + 83, col : col + 56, :] = number[rand_int]
+        bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
+        col += 56
+
+        # character 3
+        label += self.char_list[char_label]
+        w, h = char[char_label].shape[:2]
+        plate[row : row + w, col : col + h, :] = char[char_label]
+        bboxes.append(
+            make_bboxes(
+                plate,
+                char[char_label],
+                self.class_dict[self.char_list[char_label]],
+                row,
+                col,
+            )
+        )
+        col += 60 + 36
+
+        # number 4
+        rand_int = random.randint(0, 9)
+        label += self.number_list[rand_int]
+        plate[row : row + 83, col : col + 56, :] = number[rand_int]
+        bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
+        col += 56
+
+        # number 5
+        rand_int = random.randint(0, 9)
+        label += self.number_list[rand_int]
+        plate[row : row + 83, col : col + 56, :] = number[rand_int]
+        bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
+        col += 56
+
+        # number 6
+        rand_int = random.randint(0, 9)
+        label += self.number_list[rand_int]
+        plate[row : row + 83, col : col + 56, :] = number[rand_int]
+        bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
+        col += 56
+
+        # number 7
+        rand_int = random.randint(0, 9)
+        label += self.number_list[rand_int]
+        plate[row : row + 83, col : col + 56, :] = number[rand_int]
+        bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
+        col += 56
+
+        plate = random_bright(plate)
+
+        write_label(self.save_path, label, *bboxes)
+
+        # 2자리 번호판 맨뒤에label 전용 X 삽입
+        if save:
+            cv2.imwrite(self.save_path + "/" + label + "X.jpg", plate)
+
+        else:
+            cv2.imshow(label, plate)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
+    def white_short_2digits(self, char_label: int, save: bool = True):
+        number = [cv2.resize(number, (45, 83)) for number in self.Number]
+        char = [cv2.resize(char1, (49, 70)) for char1 in self.Char1]
+
+        plate = cv2.resize(self.plate, (355, 155))
+        bboxes = []
+        label = "Z"
+        # row -> y , col -> x
+        row, col = 46, 10  # row + 83, col + 56
+
+        # number 1
+        rand_int = random.randint(0, 9)
+        label += self.number_list[rand_int]
+        plate[row : row + 83, col : col + 45, :] = number[rand_int]
+        bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
+        col += 45
+
+        # number 2
+        rand_int = random.randint(0, 9)
+        label += self.number_list[rand_int]
+        plate[row : row + 83, col : col + 45, :] = number[rand_int]
+        bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
+        col += 45
+
+        # character 3
+        label += self.char_list[char_label]
+        w, h = char[char_label].shape[:2]
+        plate[row : row + w, col : col + h, :] = char[char_label]
+        bboxes.append(
+            make_bboxes(
+                plate,
+                char[char_label],
+                self.class_dict[self.char_list[char_label]],
+                row,
+                col,
+            )
+        )
+        col += 49 + 2
+
+        # number 4
+        rand_int = random.randint(0, 9)
+        label += self.number_list[rand_int]
+        plate[row : row + 83, col : col + 45, :] = number[rand_int]
+        bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
+        col += 45 + 2
+
+        # number 5
+        rand_int = random.randint(0, 9)
+        label += self.number_list[rand_int]
+        plate[row : row + 83, col : col + 45, :] = number[rand_int]
+        bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
+        col += 45
+
+        # number 6
+        rand_int = random.randint(0, 9)
+        label += self.number_list[rand_int]
+        plate[row : row + 83, col : col + 45, :] = number[rand_int]
+        bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
+        col += 45
+
+        # number 7
+        rand_int = random.randint(0, 9)
+        label += self.number_list[rand_int]
+        plate[row : row + 83, col : col + 45, :] = number[rand_int]
+        bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
+        col += 45
+
+        plate = random_bright(plate)
+
+        write_label(self.save_path, label, *bboxes)
+
+        # 2자리 번호판 맨뒤에label 전용 X 삽입
+        if save:
+            cv2.imwrite(self.save_path + "/" + label + "X.jpg", plate)
+
+        else:
+            cv2.imshow(label, plate)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-i", "--img_dir", help="save image directory", type=str, default="./DB/"
+        "-i", "--img_dir", help="save image directory", type=str, default="./DB"
     )
     parser.add_argument("-n", "--num", help="number of image", type=int)
     parser.add_argument("-s", "--save", help="save or imshow", type=bool, default=True)
@@ -363,5 +884,10 @@ if __name__ == "__main__":
     num_img = args.num
     Save = args.save
 
-    A.yellow_long(num_img, save=Save)
-    A.electronic_long(num_img, save=Save)
+    A.yellow_long(0, 0, save=Save)
+    A.electronic_long(0, save=Save)
+    A.white_long_2digits(0, save=Save)
+    A.white_long_3digits(0, save=Save)
+    A.white_short_2digits(0, save=Save)
+    A.yellow_short(0, 0, save=Save)
+    A.green_short(0, 0, save=Save)
