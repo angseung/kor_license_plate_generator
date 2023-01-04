@@ -18,6 +18,20 @@ def random_bright(img: np.ndarray) -> np.ndarray:
     return img
 
 
+def blend_argb_with_rgb(fg: np.ndarray, bg: np.ndarray, row: int, col: int) -> np.ndarray:
+    _, mask = cv2.threshold(fg[:, :, 3], 1, 255, cv2.THRESH_BINARY)
+    mask_inv = cv2.bitwise_not(mask)
+    img_fg = cv2.cvtColor(fg, cv2.COLOR_BGRA2BGR)
+    h, w = img_fg.shape[:2]
+    roi = bg[row: row + h, col: col + w]
+
+    masked_fg = cv2.bitwise_and(img_fg, img_fg, mask=mask)
+    masked_bg = cv2.bitwise_and(roi, roi, mask=mask_inv)
+    added = masked_fg + masked_bg
+
+    return added
+
+
 class ImageGenerator:
     def __init__(self, save_path: str):
         self.save_path = save_path
@@ -152,7 +166,7 @@ class ImageGenerator:
         for file in file_list:
             img_path = os.path.join(file_path, file)
             img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
-            img[:, :, 3] = 255
+            # img[:, :, 3] = 255
             self.Number_tr.append(img)
             self.number_list_tr.append(file[0:-4])
 
@@ -238,71 +252,82 @@ class ImageGenerator:
     def electronic_long(self, num: int, save: bool = False):
         number = [cv2.resize(number, (56, 83)) for number in self.Number_tr]
         char = [cv2.resize(char1, (60, 83)) for char1 in self.Char_tr]
-        Plate = cv2.resize(self.plate_elec, (520, 135))
+        Plate = cv2.resize(self.plate_elec, (590, 160))
         # Plate = cv2.cvtColor(Plate, cv2.COLOR_BGR2BGRA)
         # Plate[:, :, 3] = 255
 
         for i, Iter in enumerate(range(num)):
-            # Plate = cv2.resize(self.plate_elec, (520, 110))
             label = "Z"
             # row -> y , col -> x
-            row, col = 13, 35  # row + 83, col + 56
+            row, col = 25, 80  # row + 83, col + 56
             # number 1
             rand_int = random.randint(0, 9)
             label += self.number_list_tr[rand_int]
             fg = number[rand_int]
-            _, mask = cv2.threshold(fg[:, :, 3], 1, 255, cv2.THRESH_BINARY)
-            mask_inv = cv2.bitwise_not(mask)
-            img_fg = cv2.cvtColor(fg, cv2.COLOR_BGRA2BGR)
-            h, w = img_fg.shape[:2]
-            roi = Plate[row : row + h, col : col + w]
+            added = blend_argb_with_rgb(fg, Plate, row, col)
+            w, h = added.shape[:2]
 
-            masked_fg = cv2.bitwise_and(img_fg, img_fg, mask=mask)
-            masked_bg = cv2.bitwise_and(roi, roi, mask=mask_inv)
-            added = masked_fg + masked_bg
-
-            Plate[row : row + 83, col : col + 56, :] = added
+            Plate[row : row + w, col : col + h, :] = added
             col += 56
 
             # number 2
             rand_int = random.randint(0, 9)
-            label += self.number_list[rand_int]
-            # Plate[row:row + 83, col:col + 56, :] = number[rand_int]
-            # Plate[row : row + 83, col : col + 56, :] = number[rand_int]
+            label += self.number_list_tr[rand_int]
+            fg = number[rand_int]
+            added = blend_argb_with_rgb(fg, Plate, row, col)
+            w, h = added.shape[:2]
+
+            Plate[row : row + w, col : col + h, :] = added
             col += 56
 
             # character 3
-            label += self.char_list[i % 37]
-            # Plate[row:row + 83, col:col + 60, :] = char[i%37]
-            # Plate[row : row + 83, col : col + 60, :] = char[i % 37]
+            rand_int = random.randint(0, len(char) - 1)
+            label += self.char_list_tr[rand_int]
+            fg = char[rand_int]
+            added = blend_argb_with_rgb(fg, Plate, row, col)
+            w, h = added.shape[:2]
+
+            Plate[row : row + w, col : col + h, :] = added
             col += 60 + 36
 
             # number 4
             rand_int = random.randint(0, 9)
-            label += self.number_list[rand_int]
-            # Plate[row:row + 83, col:col + 56, :] = number[rand_int]
-            # Plate[row : row + 83, col : col + 56, :] = number[rand_int]
+            label += self.number_list_tr[rand_int]
+            fg = number[rand_int]
+            added = blend_argb_with_rgb(fg, Plate, row, col)
+            w, h = added.shape[:2]
+
+            Plate[row : row + w, col : col + h, :] = added
             col += 56
 
             # number 5
             rand_int = random.randint(0, 9)
-            label += self.number_list[rand_int]
-            # Plate[row:row + 83, col:col + 56, :] = number[rand_int]
-            # Plate[row : row + 83, col : col + 56, :] = number[rand_int]
+            label += self.number_list_tr[rand_int]
+            fg = number[rand_int]
+            added = blend_argb_with_rgb(fg, Plate, row, col)
+            w, h = added.shape[:2]
+
+            Plate[row : row + w, col : col + h, :] = added
             col += 56
 
             # number 6
             rand_int = random.randint(0, 9)
-            label += self.number_list[rand_int]
-            # Plate[row:row + 83, col:col + 56, :] = number[rand_int]
-            # Plate[row : row + 83, col : col + 56, :] = number[rand_int]
+            label += self.number_list_tr[rand_int]
+            fg = number[rand_int]
+            added = blend_argb_with_rgb(fg, Plate, row, col)
+            w, h = added.shape[:2]
+
+            Plate[row : row + w, col : col + h, :] = added
             col += 56
 
             # number 7
             rand_int = random.randint(0, 9)
-            label += self.number_list[rand_int]
-            # Plate[row:row + 83, col:col + 56, :] = number[rand_int]
-            # Plate[row : row + 83, col : col + 56, :] = number[rand_int]
+            label += self.number_list_tr[rand_int]
+            fg = number[rand_int]
+            added = blend_argb_with_rgb(fg, Plate, row, col)
+            w, h = added.shape[:2]
+
+            Plate[row : row + w, col : col + h, :] = added
             col += 56
             # Plate = random_bright(Plate)
             Plate = random_bright(Plate)
