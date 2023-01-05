@@ -36,15 +36,18 @@ def blend_argb_with_rgb(
 
 
 def make_bboxes(
-    img: np.ndarray, obj: np.ndarray, label: int, xtl: int, ytl: int
+    img: np.ndarray, obj: np.ndarray, label: int, ytl: int, xtl: int
 ) -> str:
-    w, h = obj.shape[:2]
+    h, w = obj.shape[:2]
     xbr = xtl + w
     ybr = ytl + h
+    center_x = (xtl + xbr) / 2.0
+    center_y = (ytl + ybr) / 2.0
 
-    w_bg, h_bg = img.shape[:2]
+    h_bg, w_bg = img.shape[:2]
 
-    return f"{label} {xtl / w_bg} {ytl / h_bg} {xbr / w_bg} {ybr / h_bg}"
+    # yolo format (x_center, y_center, width, height)
+    return f"{label} {center_x / w_bg} {center_y / h_bg} {w / w_bg} {h / h_bg}"
 
 
 def write_label(target_dir: str, fname: str, *bboxes: List[str]) -> None:
