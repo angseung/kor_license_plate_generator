@@ -193,7 +193,7 @@ class ImageGenerator:
             Plate = random_bright(Plate)
             # 2자리 번호판 맨뒤에label 전용 X 삽입
             if save:
-                # cv2.imwrite(self.save_path + label + "X.jpg", Plate)
+                # cv2.imwrite(self.save_path + label + "", Plate)
                 cv2.imwrite(self.save_path + label + "X.jpg", Plate)
 
             else:
