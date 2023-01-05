@@ -22,17 +22,17 @@ for char in range(40):
     for _ in range(320):
         generator.electronic_long(char, True)
 
-# yellow long
-for char in range(5):
-    for region in range(17):
-        for _ in range(200):
-            generator.yellow_long(region, char, True)
-
-# yellow short
-for char in range(5):
-    for region in range(17):
-        for _ in range(200):
-            generator.yellow_short(region, char, True)
+# # yellow long
+# for char in range(5):
+#     for region in range(17):
+#         for _ in range(200):
+#             generator.yellow_long(region, char, True)
+#
+# # yellow short
+# for char in range(5):
+#     for region in range(17):
+#         for _ in range(200):
+#             generator.yellow_short(region, char, True)
 
 # green short
 for char in range(37):
