@@ -310,9 +310,7 @@ class ImageGenerator:
             write_label(self.save_path, label, *bboxes)
 
         else:
-            cv2.imshow(label, plate)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            pass
 
     def yellow_long(self, region_label: int, char_label: int, save: bool = True):
         number_y = [cv2.resize(number, (56, 83)) for number in self.number_y]
@@ -409,9 +407,7 @@ class ImageGenerator:
             write_label(self.save_path, label, *bboxes)
 
         else:
-            cv2.imshow(label, plate)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            pass
 
     def yellow_short(self, region_label: int, char_label: int, save: bool = True):
         number_y = [cv2.resize(number, (44, 60)) for number in self.number_y]
@@ -510,9 +506,7 @@ class ImageGenerator:
             write_label(self.save_path, label, *bboxes)
 
         else:
-            cv2.imshow(label, plate)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            pass
 
     def electronic_long(self, char_label: int, save: bool = True):
         number_tr = [cv2.resize(number, (56, 83)) for number in self.number_tr]
@@ -616,9 +610,7 @@ class ImageGenerator:
             write_label(self.save_path, f"{label}X", *bboxes)
 
         else:
-            cv2.imshow(label, plate)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            pass
 
     def white_long_2digits(self, char_label: int, save: bool = True):
         number = [cv2.resize(number, (56, 83)) for number in self.number]
@@ -695,9 +687,7 @@ class ImageGenerator:
             write_label(self.save_path, f"{label}X", *bboxes)
 
         else:
-            cv2.imshow(label, plate)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            pass
 
     def white_long_3digits(self, char_label: int, save: bool = True):
         number = [cv2.resize(number, (56, 83)) for number in self.number]
@@ -781,9 +771,7 @@ class ImageGenerator:
             write_label(self.save_path, f"{label}X", *bboxes)
 
         else:
-            cv2.imshow(label, plate)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            pass
 
     def white_short_2digits(self, char_label: int, save: bool = True):
         number = [cv2.resize(number, (45, 83)) for number in self.number]
@@ -860,15 +848,13 @@ class ImageGenerator:
             write_label(self.save_path, f"{label}X", *bboxes)
 
         else:
-            cv2.imshow(label, plate)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            pass
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-i", "--img_dir", help="save image directory", type=str, default="./DB"
+        "-i", "--img_dir", help="save image directory", type=str, default="./DB_new"
     )
     parser.add_argument("-n", "--num", help="number of image", type=int)
     parser.add_argument("-s", "--save", help="save or imshow", type=bool, default=True)

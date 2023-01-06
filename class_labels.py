@@ -173,3 +173,6 @@ class_dict: Dict[Union[str, int], int] = {
     "P": 82,
     "P_v": 83,
 }
+
+class_dict_reversed = {val: key for key, val in class_dict.items()}
+class_list_reversed = {val: key for key, val in enumerate(class_labels)}
