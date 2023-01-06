@@ -51,12 +51,9 @@ def make_bboxes(
 
 
 def write_label(target_dir: str, fname: str, *bboxes: List[str]) -> None:
-    if not os.path.isdir(f"{target_dir}/labels"):
-        os.mkdir(f"{target_dir}/labels")
-
     num_boxes = len(bboxes)
 
-    with open(f"{target_dir}/labels/{fname}.txt", "w") as f:
+    with open(f"{target_dir}/{fname}.txt", "w") as f:
         for i in range(num_boxes):
             f.write(f"{bboxes[i]}\n")
 
@@ -64,8 +61,6 @@ def write_label(target_dir: str, fname: str, *bboxes: List[str]) -> None:
 class ImageGenerator:
     def __init__(self, save_path: str):
         self.save_path = save_path
-        if not os.path.exists(self.save_path):
-            os.makedirs(self.save_path)
 
         # Plate
         self.plate = cv2.imread("plate.jpg")
@@ -306,8 +301,8 @@ class ImageGenerator:
         plate = random_bright(plate)
 
         if save:
-            cv2.imwrite(self.save_path + "/images/" + label + ".jpg", plate)
-            write_label(self.save_path, label, *bboxes)
+            cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
+            write_label(self.save_path + "/labels/train", label, *bboxes)
 
         else:
             pass
@@ -403,8 +398,8 @@ class ImageGenerator:
         plate = random_bright(plate)
 
         if save:
-            cv2.imwrite(self.save_path + "/images/" + label + ".jpg", plate)
-            write_label(self.save_path, label, *bboxes)
+            cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
+            write_label(self.save_path + "/labels/train", label, *bboxes)
 
         else:
             pass
@@ -502,8 +497,8 @@ class ImageGenerator:
         plate = random_bright(plate)
 
         if save:
-            cv2.imwrite(self.save_path + "/images/" + label + ".jpg", plate)
-            write_label(self.save_path, label, *bboxes)
+            cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
+            write_label(self.save_path + "/labels/train", label, *bboxes)
 
         else:
             pass
@@ -606,8 +601,8 @@ class ImageGenerator:
 
         # 2자리 번호판 맨 뒤에 label 전용 X 삽입
         if save:
-            cv2.imwrite(self.save_path + "/images/" + label + "X.jpg", plate)
-            write_label(self.save_path, f"{label}X", *bboxes)
+            cv2.imwrite(self.save_path + "/images/train/" + label + "X.jpg", plate)
+            write_label(self.save_path + "/labels/train", f"{label}X", *bboxes)
 
         else:
             pass
@@ -683,8 +678,8 @@ class ImageGenerator:
 
         # 2자리 번호판 맨 뒤에 label 전용 X 삽입
         if save:
-            cv2.imwrite(self.save_path + "/images/" + label + "X.jpg", plate)
-            write_label(self.save_path, f"{label}X", *bboxes)
+            cv2.imwrite(self.save_path + "/images/train/" + label + "X.jpg", plate)
+            write_label(self.save_path + "/labels/train", f"{label}X", *bboxes)
 
         else:
             pass
@@ -765,10 +760,9 @@ class ImageGenerator:
 
         plate = random_bright(plate)
 
-        # 2자리 번호판 맨 뒤에 label 전용 X 삽입
         if save:
-            cv2.imwrite(self.save_path + "/images/" + label + "X.jpg", plate)
-            write_label(self.save_path, f"{label}X", *bboxes)
+            cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
+            write_label(self.save_path + "/labels/train", label, *bboxes)
 
         else:
             pass
@@ -844,8 +838,8 @@ class ImageGenerator:
 
         # 2자리 번호판 맨뒤에label 전용 X 삽입
         if save:
-            cv2.imwrite(self.save_path + "/images/" + label + "X.jpg", plate)
-            write_label(self.save_path, f"{label}X", *bboxes)
+            cv2.imwrite(self.save_path + "/images/train/" + label + "X.jpg", plate)
+            write_label(self.save_path + "/labels/train", f"{label}X", *bboxes)
 
         else:
             pass

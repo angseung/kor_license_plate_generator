@@ -6,12 +6,12 @@ import pandas as pd
 from plate_generator import ImageGenerator
 from class_labels import class_dict_reversed
 
-save_path = "./DB"
+save_path = "./addons"
 generator = ImageGenerator(save_path=save_path)
 
-if not os.path.isdir(f"{save_path}/images"):
-    os.makedirs(f"{save_path}/images", exist_ok=True)
-    os.makedirs(f"{save_path}/labels", exist_ok=True)
+if not os.path.isdir(f"{save_path}"):
+    os.makedirs(f"{save_path}/images/train", exist_ok=True)
+    os.makedirs(f"{save_path}/labels/train", exist_ok=True)
 
 gen_target: np.ndarray = pd.read_excel("gen_plates.xlsx").iloc[:-1, :].to_numpy()
 generated_samples = 0
