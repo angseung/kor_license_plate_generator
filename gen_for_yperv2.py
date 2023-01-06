@@ -1,12 +1,17 @@
 from typing import Dict, List, Tuple
 import os
+import platform
 import math
 import numpy as np
 import pandas as pd
 from plate_generator import ImageGenerator
 from class_labels import class_dict_reversed
 
-save_path = "./addons"
+if "Windows" in platform.platform():
+    save_path = "./addons"
+elif "Linux" in platform.platform():
+    save_path = "/data_yper/addons"
+
 generator = ImageGenerator(save_path=save_path)
 
 if not os.path.isdir(f"{save_path}"):
