@@ -306,7 +306,7 @@ class ImageGenerator:
         plate = random_bright(plate)
 
         if save:
-            cv2.imwrite(self.save_path + "/" + label + ".jpg", plate)
+            cv2.imwrite(self.save_path + "/images/" + label + ".jpg", plate)
             write_label(self.save_path, label, *bboxes)
 
         else:
@@ -403,7 +403,7 @@ class ImageGenerator:
         plate = random_bright(plate)
 
         if save:
-            cv2.imwrite(self.save_path + "/" + label + ".jpg", plate)
+            cv2.imwrite(self.save_path + "/images/" + label + ".jpg", plate)
             write_label(self.save_path, label, *bboxes)
 
         else:
@@ -502,7 +502,7 @@ class ImageGenerator:
         plate = random_bright(plate)
 
         if save:
-            cv2.imwrite(self.save_path + "/" + label + ".jpg", plate)
+            cv2.imwrite(self.save_path + "/images/" + label + ".jpg", plate)
             write_label(self.save_path, label, *bboxes)
 
         else:
@@ -606,7 +606,7 @@ class ImageGenerator:
 
         # 2자리 번호판 맨 뒤에 label 전용 X 삽입
         if save:
-            cv2.imwrite(self.save_path + "/" + label + "X.jpg", plate)
+            cv2.imwrite(self.save_path + "/images/" + label + "X.jpg", plate)
             write_label(self.save_path, f"{label}X", *bboxes)
 
         else:
@@ -683,7 +683,7 @@ class ImageGenerator:
 
         # 2자리 번호판 맨 뒤에 label 전용 X 삽입
         if save:
-            cv2.imwrite(self.save_path + "/" + label + "X.jpg", plate)
+            cv2.imwrite(self.save_path + "/images/" + label + "X.jpg", plate)
             write_label(self.save_path, f"{label}X", *bboxes)
 
         else:
@@ -767,7 +767,7 @@ class ImageGenerator:
 
         # 2자리 번호판 맨 뒤에 label 전용 X 삽입
         if save:
-            cv2.imwrite(self.save_path + "/" + label + "X.jpg", plate)
+            cv2.imwrite(self.save_path + "/images/" + label + "X.jpg", plate)
             write_label(self.save_path, f"{label}X", *bboxes)
 
         else:
@@ -844,7 +844,7 @@ class ImageGenerator:
 
         # 2자리 번호판 맨뒤에label 전용 X 삽입
         if save:
-            cv2.imwrite(self.save_path + "/" + label + "X.jpg", plate)
+            cv2.imwrite(self.save_path + "/images/" + label + "X.jpg", plate)
             write_label(self.save_path, f"{label}X", *bboxes)
 
         else:
