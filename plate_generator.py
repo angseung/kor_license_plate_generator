@@ -417,14 +417,14 @@ class ImageGenerator:
         bboxes = []
 
         # region
-        label += self.region_list_py[region_label]
+        label += self.region_list_y[region_label]
         w, h = region_y[region_label].shape[:2]
         plate[row : row + w, col : col + h, :] = region_y[region_label]
         bboxes.append(
             make_bboxes(
                 plate,
                 region_y[region_label],
-                self.class_dict[self.region_list_py[region_label]],
+                self.class_dict[self.region_list_y[region_label]],
                 row,
                 col,
             )
