@@ -257,3 +257,4 @@ test_generate2
 DB
 DB_new
 addons
+*.tar.gz
