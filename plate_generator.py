@@ -187,7 +187,7 @@ def draw_bbox_on_img(img: np.ndarray, label: np.ndarray) -> np.ndarray:
 
 
 class ImageGenerator:
-    def __init__(self, save_path: str, random_resize: Optional[bool] = True):
+    def __init__(self, save_path: str, random_resize: Optional[bool] = True, debug: Optional[bool] = False):
         self.save_path = save_path
 
         # Plate
@@ -202,6 +202,7 @@ class ImageGenerator:
         self.new_plate8 = cv2.imread("new_plate8.png")
         self.class_dict = class_dict
         self.random_resize = random_resize
+        self.debug = debug
 
         # loading Number
         file_path = "./num/"
@@ -428,11 +429,13 @@ class ImageGenerator:
         bboxes.append(make_bboxes(plate, number2_g[rand_int], rand_int, row, col))
         col += 64
         plate = random_bright(plate)
+        labels = convert_bbox_to_label(bboxes)
 
         if self.random_resize:
-            labels = convert_bbox_to_label(bboxes)
             plate, bboxes = random_resize(plate, labels)
-            plate = draw_bbox_on_img(img=plate, label=bboxes)
+
+        if self.debug:
+            plate = draw_bbox_on_img(img=plate, label=labels)
 
         if save:
             cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
@@ -530,11 +533,13 @@ class ImageGenerator:
         bboxes.append(make_bboxes(plate, number_y[rand_int], rand_int, row, col))
         col += 56
         plate = random_bright(plate)
+        labels = convert_bbox_to_label(bboxes)
 
         if self.random_resize:
-            labels = convert_bbox_to_label(bboxes)
             plate, bboxes = random_resize(plate, labels)
-            plate = draw_bbox_on_img(img=plate, label=bboxes)
+
+        if self.debug:
+            plate = draw_bbox_on_img(img=plate, label=labels)
 
         if save:
             cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
@@ -634,11 +639,13 @@ class ImageGenerator:
         bboxes.append(make_bboxes(plate, number2_y[rand_int], rand_int, row, col))
         col += 64
         plate = random_bright(plate)
+        labels = convert_bbox_to_label(bboxes)
 
         if self.random_resize:
-            labels = convert_bbox_to_label(bboxes)
             plate, bboxes = random_resize(plate, labels)
-            plate = draw_bbox_on_img(img=plate, label=bboxes)
+
+        if self.debug:
+            plate = draw_bbox_on_img(img=plate, label=labels)
 
         if save:
             cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
@@ -742,11 +749,13 @@ class ImageGenerator:
         col += 56
 
         plate = random_bright(plate)
+        labels = convert_bbox_to_label(bboxes)
 
         if self.random_resize:
-            labels = convert_bbox_to_label(bboxes)
             plate, bboxes = random_resize(plate, labels)
-            plate = draw_bbox_on_img(img=plate, label=bboxes)
+
+        if self.debug:
+            plate = draw_bbox_on_img(img=plate, label=labels)
 
         # 2자리 번호판 맨 뒤에 label 전용 X 삽입
         if save:
@@ -824,11 +833,13 @@ class ImageGenerator:
         col += 56
 
         plate = random_bright(plate)
+        labels = convert_bbox_to_label(bboxes)
 
         if self.random_resize:
-            labels = convert_bbox_to_label(bboxes)
             plate, bboxes = random_resize(plate, labels)
-            plate = draw_bbox_on_img(img=plate, label=bboxes)
+
+        if self.debug:
+            plate = draw_bbox_on_img(img=plate, label=labels)
 
         # 2자리 번호판 맨 뒤에 label 전용 X 삽입
         if save:
@@ -913,11 +924,13 @@ class ImageGenerator:
         col += 56
 
         plate = random_bright(plate)
+        labels = convert_bbox_to_label(bboxes)
 
         if self.random_resize:
-            labels = convert_bbox_to_label(bboxes)
             plate, bboxes = random_resize(plate, labels)
-            plate = draw_bbox_on_img(img=plate, label=bboxes)
+
+        if self.debug:
+            plate = draw_bbox_on_img(img=plate, label=labels)
 
         if save:
             cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
@@ -994,11 +1007,13 @@ class ImageGenerator:
         col += 45
 
         plate = random_bright(plate)
+        labels = convert_bbox_to_label(bboxes)
 
         if self.random_resize:
-            labels = convert_bbox_to_label(bboxes)
             plate, bboxes = random_resize(plate, labels)
-            plate = draw_bbox_on_img(img=plate, label=bboxes)
+
+        if self.debug:
+            plate = draw_bbox_on_img(img=plate, label=labels)
 
         # 2자리 번호판 맨뒤에label 전용 X 삽입
         if save:
