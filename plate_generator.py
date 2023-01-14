@@ -1,9 +1,10 @@
 import os
 import random
 import argparse
-from typing import List, Union, Tuple
+from typing import List, Union, Tuple, Optional
 import cv2
 import numpy as np
+from PIL import Image, ImageDraw
 from class_labels import class_dict
 
 
@@ -50,7 +51,16 @@ def make_bboxes(
     return f"{label} {center_x / w_bg} {center_y / h_bg} {w / w_bg} {h / h_bg}"
 
 
-def write_label(target_dir: str, fname: str, *bboxes: List[str]) -> None:
+def convert_bbox_to_label(bboxes: List[str]) -> np.ndarray:
+    labels = np.zeros((len(bboxes), 5))
+
+    for i, bbox in enumerate(bboxes):
+        labels[i, :] = np.array(bbox.split())
+
+    return labels
+
+
+def write_label_from_str(target_dir: str, fname: str, *bboxes: List[str]) -> None:
     num_boxes = len(bboxes)
 
     with open(f"{target_dir}/{fname}.txt", "w") as f:
@@ -58,8 +68,126 @@ def write_label(target_dir: str, fname: str, *bboxes: List[str]) -> None:
             f.write(f"{bboxes[i]}\n")
 
 
+def write_label(target_dir: str, fname: str, bboxes: np.ndarray) -> None:
+    """
+    exports np.ndarray label to txt file
+    Args:
+        target_dir: save dir for label file
+        fname: file name of label
+        bboxes: annotation information, np.ndarray type
+
+    Returns: None
+
+    """
+    num_boxes = bboxes.shape[0]
+
+    with open(f"{target_dir}/{fname}.txt", "w") as f:
+        for i in range(num_boxes):
+            target_str = f"{int(bboxes[i][0])} {bboxes[i][1]} {bboxes[i][2]} {bboxes[i][3]} {bboxes[i][4]}"
+            f.write(f"{target_str}\n")
+
+
+def random_resize(
+    img: np.ndarray, label: Optional[Union[np.ndarray, None]] = None
+) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+    scaled = random.uniform(0.75, 2.5)
+    h, w = img.shape[:2]
+
+    if h > w:
+        ratio = h / w
+        w_scaled = w * scaled
+        h_scaled = w_scaled * ratio
+
+    else:
+        ratio = w / h
+        h_scaled = h * scaled
+        w_scaled = h_scaled * ratio
+
+    size = int(w_scaled), int(h_scaled)
+
+    if label is not None:
+        label = label_yolo2voc(label, h, w).astype(np.float64)
+        label[:, 1:] *= scaled
+        label = label_voc2yolo(label, h_scaled, w_scaled)
+
+        return cv2.resize(img, size, interpolation=cv2.INTER_AREA), label
+
+    return cv2.resize(img, size, interpolation=cv2.INTER_AREA)
+
+
+def label_yolo2voc(label_yolo: np.ndarray, h: int, w: int) -> np.ndarray:
+    """
+    converts label format from yolo to voc
+    Args:
+        label_yolo: (x_center, y_center, w, h), normalized
+        h: img height
+        w: img width
+
+    Returns: (xtl, ytl, xbr, ybr)
+
+    """
+    label_voc = np.zeros(label_yolo.shape, dtype=np.float64)
+    label_voc[:, 0] = label_yolo[:, 0]
+
+    label_yolo_temp = label_yolo.copy()
+    label_yolo_temp[:, [1, 3]] *= w
+    label_yolo_temp[:, [2, 4]] *= h
+
+    # convert x_center, y_center to xtl, ytl
+    label_voc[:, 1] = label_yolo_temp[:, 1] - 0.5 * label_yolo_temp[:, 3]
+    label_voc[:, 2] = label_yolo_temp[:, 2] - 0.5 * label_yolo_temp[:, 4]
+
+    # convert width, height to xbr, ybr
+    label_voc[:, 3] = label_voc[:, 1] + label_yolo_temp[:, 3]
+    label_voc[:, 4] = label_voc[:, 2] + label_yolo_temp[:, 4]
+
+    return label_voc.astype(np.uint32)
+
+
+def label_voc2yolo(label_voc: np.ndarray, h: int, w: int) -> np.ndarray:
+    """
+    converts label format from voc to yolo
+    Args:
+        label_voc: (xtl, ytl, xbr, ybr)
+        h: img heights
+        w: img width
+
+    Returns: (x_center, y_center, w, h), normalized
+
+    """
+    label_yolo = np.zeros(label_voc.shape, dtype=np.float64)
+    label_yolo[:, 0] = label_voc[:, 0]
+
+    # convert xtl, ytl to x_center, y_center
+    label_yolo[:, 1] = 0.5 * (label_voc[:, 1] + label_voc[:, 3])
+    label_yolo[:, 2] = 0.5 * (label_voc[:, 2] + label_voc[:, 4])
+
+    # convert xbr, ybr to width, height
+    label_yolo[:, 3] = label_voc[:, 3] - label_voc[:, 1]
+    label_yolo[:, 4] = label_voc[:, 4] - label_voc[:, 2]
+
+    # normalize
+    label_yolo[:, [1, 3]] /= w
+    label_yolo[:, [2, 4]] /= h
+
+    return label_yolo
+
+
+def draw_bbox_on_img(img: np.ndarray, label: np.ndarray) -> np.ndarray:
+    label = label_yolo2voc(label, *(img.shape[:2]))
+
+    img = Image.fromarray(img)
+    draw = ImageDraw.Draw(img)
+
+    for i in range(label.shape[0]):
+        pos = tuple(label[i][1:].tolist())
+        draw.rectangle(pos, outline=(0, 0, 0), width=3)
+
+    return np.asarray(img)
+
+
 class ImageGenerator:
-    def __init__(self, save_path: str):
+    def __init__(self, save_path: str, random_resize: Optional[bool] = True):
         self.save_path = save_path
 
         # Plate
@@ -73,6 +201,7 @@ class ImageGenerator:
         self.new_plate4 = cv2.imread("new_plate4.png")
         self.new_plate8 = cv2.imread("new_plate8.png")
         self.class_dict = class_dict
+        self.random_resize = random_resize
 
         # loading Number
         file_path = "./num/"
@@ -300,9 +429,14 @@ class ImageGenerator:
         col += 64
         plate = random_bright(plate)
 
+        if self.random_resize:
+            labels = convert_bbox_to_label(bboxes)
+            plate, bboxes = random_resize(plate, labels)
+            plate = draw_bbox_on_img(img=plate, label=bboxes)
+
         if save:
             cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
-            write_label(self.save_path + "/labels/train", label, *bboxes)
+            write_label(self.save_path + "/labels/train", label, bboxes)
 
         else:
             pass
@@ -397,9 +531,14 @@ class ImageGenerator:
         col += 56
         plate = random_bright(plate)
 
+        if self.random_resize:
+            labels = convert_bbox_to_label(bboxes)
+            plate, bboxes = random_resize(plate, labels)
+            plate = draw_bbox_on_img(img=plate, label=bboxes)
+
         if save:
             cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
-            write_label(self.save_path + "/labels/train", label, *bboxes)
+            write_label(self.save_path + "/labels/train", label, bboxes)
 
         else:
             pass
@@ -496,9 +635,14 @@ class ImageGenerator:
         col += 64
         plate = random_bright(plate)
 
+        if self.random_resize:
+            labels = convert_bbox_to_label(bboxes)
+            plate, bboxes = random_resize(plate, labels)
+            plate = draw_bbox_on_img(img=plate, label=bboxes)
+
         if save:
             cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
-            write_label(self.save_path + "/labels/train", label, *bboxes)
+            write_label(self.save_path + "/labels/train", label, bboxes)
 
         else:
             pass
@@ -599,10 +743,15 @@ class ImageGenerator:
 
         plate = random_bright(plate)
 
+        if self.random_resize:
+            labels = convert_bbox_to_label(bboxes)
+            plate, bboxes = random_resize(plate, labels)
+            plate = draw_bbox_on_img(img=plate, label=bboxes)
+
         # 2자리 번호판 맨 뒤에 label 전용 X 삽입
         if save:
             cv2.imwrite(self.save_path + "/images/train/" + label + "X.jpg", plate)
-            write_label(self.save_path + "/labels/train", f"{label}X", *bboxes)
+            write_label(self.save_path + "/labels/train", f"{label}X", bboxes)
 
         else:
             pass
@@ -676,10 +825,15 @@ class ImageGenerator:
 
         plate = random_bright(plate)
 
+        if self.random_resize:
+            labels = convert_bbox_to_label(bboxes)
+            plate, bboxes = random_resize(plate, labels)
+            plate = draw_bbox_on_img(img=plate, label=bboxes)
+
         # 2자리 번호판 맨 뒤에 label 전용 X 삽입
         if save:
             cv2.imwrite(self.save_path + "/images/train/" + label + "X.jpg", plate)
-            write_label(self.save_path + "/labels/train", f"{label}X", *bboxes)
+            write_label(self.save_path + "/labels/train", f"{label}X", bboxes)
 
         else:
             pass
@@ -760,9 +914,14 @@ class ImageGenerator:
 
         plate = random_bright(plate)
 
+        if self.random_resize:
+            labels = convert_bbox_to_label(bboxes)
+            plate, bboxes = random_resize(plate, labels)
+            plate = draw_bbox_on_img(img=plate, label=bboxes)
+
         if save:
             cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
-            write_label(self.save_path + "/labels/train", label, *bboxes)
+            write_label(self.save_path + "/labels/train", label, bboxes)
 
         else:
             pass
@@ -836,10 +995,15 @@ class ImageGenerator:
 
         plate = random_bright(plate)
 
+        if self.random_resize:
+            labels = convert_bbox_to_label(bboxes)
+            plate, bboxes = random_resize(plate, labels)
+            plate = draw_bbox_on_img(img=plate, label=bboxes)
+
         # 2자리 번호판 맨뒤에label 전용 X 삽입
         if save:
             cv2.imwrite(self.save_path + "/images/train/" + label + "X.jpg", plate)
-            write_label(self.save_path + "/labels/train", f"{label}X", *bboxes)
+            write_label(self.save_path + "/labels/train", f"{label}X", bboxes)
 
         else:
             pass
