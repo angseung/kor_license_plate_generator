@@ -1,6 +1,13 @@
+import os
 from plate_generator import ImageGenerator
 
-generator = ImageGenerator(save_path="./DB")
+save_path = "/data_yper/plates_sjan"
+generator = ImageGenerator(save_path=save_path)
+
+if not os.path.isdir(f"{save_path}"):
+    os.makedirs(f"{save_path}/images/train", exist_ok=True)
+    os.makedirs(f"{save_path}/labels/train", exist_ok=True)
+
 
 # 2digit white short
 for char in range(35):
