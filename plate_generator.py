@@ -432,7 +432,7 @@ class ImageGenerator:
         labels = convert_bbox_to_label(bboxes)
 
         if self.random_resize:
-            plate, bboxes = random_resize(plate, labels)
+            plate, labels = random_resize(plate, labels)
 
         if self.debug:
             plate = draw_bbox_on_img(img=plate, label=labels)
@@ -536,7 +536,7 @@ class ImageGenerator:
         labels = convert_bbox_to_label(bboxes)
 
         if self.random_resize:
-            plate, bboxes = random_resize(plate, labels)
+            plate, labels = random_resize(plate, labels)
 
         if self.debug:
             plate = draw_bbox_on_img(img=plate, label=labels)
@@ -642,7 +642,7 @@ class ImageGenerator:
         labels = convert_bbox_to_label(bboxes)
 
         if self.random_resize:
-            plate, bboxes = random_resize(plate, labels)
+            plate, labels = random_resize(plate, labels)
 
         if self.debug:
             plate = draw_bbox_on_img(img=plate, label=labels)
@@ -752,7 +752,7 @@ class ImageGenerator:
         labels = convert_bbox_to_label(bboxes)
 
         if self.random_resize:
-            plate, bboxes = random_resize(plate, labels)
+            plate, labels = random_resize(plate, labels)
 
         if self.debug:
             plate = draw_bbox_on_img(img=plate, label=labels)
@@ -836,7 +836,7 @@ class ImageGenerator:
         labels = convert_bbox_to_label(bboxes)
 
         if self.random_resize:
-            plate, bboxes = random_resize(plate, labels)
+            plate, labels = random_resize(plate, labels)
 
         if self.debug:
             plate = draw_bbox_on_img(img=plate, label=labels)
@@ -927,7 +927,7 @@ class ImageGenerator:
         labels = convert_bbox_to_label(bboxes)
 
         if self.random_resize:
-            plate, bboxes = random_resize(plate, labels)
+            plate, labels = random_resize(plate, labels)
 
         if self.debug:
             plate = draw_bbox_on_img(img=plate, label=labels)
@@ -1010,7 +1010,7 @@ class ImageGenerator:
         labels = convert_bbox_to_label(bboxes)
 
         if self.random_resize:
-            plate, bboxes = random_resize(plate, labels)
+            plate, labels = random_resize(plate, labels)
 
         if self.debug:
             plate = draw_bbox_on_img(img=plate, label=labels)
