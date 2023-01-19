@@ -1,12 +1,19 @@
 import os
+import platform
 from plate_generator import ImageGenerator
 
-save_path = "/data_yper/plates_sjan"
+if "Windows" in platform.platform():
+    save_path = "./addons"
+elif "Linux" in platform.platform():
+    save_path = "/data_yper/addons"
+
 generator = ImageGenerator(save_path=save_path)
 
 if not os.path.isdir(f"{save_path}"):
     os.makedirs(f"{save_path}/images/train", exist_ok=True)
     os.makedirs(f"{save_path}/labels/train", exist_ok=True)
+    os.makedirs(f"{save_path}/images/val", exist_ok=True)
+    os.makedirs(f"{save_path}/labels/val", exist_ok=True)
 
 
 # 2digit white short
