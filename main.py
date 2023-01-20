@@ -3,11 +3,11 @@ import platform
 from plate_generator import ImageGenerator
 
 if "Windows" in platform.platform():
-    save_path = "./addons"
+    save_path = "../datasets/addons"
 elif "Linux" in platform.platform():
     save_path = "/data_yper/addons"
 
-generator = ImageGenerator(save_path=save_path)
+generator = ImageGenerator(save_path=save_path, random_resize=True, debug=True)
 
 if not os.path.isdir(f"{save_path}"):
     os.makedirs(f"{save_path}/images/train", exist_ok=True)

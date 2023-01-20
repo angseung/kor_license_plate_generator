@@ -439,7 +439,7 @@ class ImageGenerator:
 
         if save:
             cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
-            write_label(self.save_path + "/labels/train", label, bboxes)
+            write_label(self.save_path + "/labels/train", label, labels)
 
         else:
             pass
@@ -543,7 +543,7 @@ class ImageGenerator:
 
         if save:
             cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
-            write_label(self.save_path + "/labels/train", label, bboxes)
+            write_label(self.save_path + "/labels/train", label, labels)
 
         else:
             pass
@@ -649,7 +649,7 @@ class ImageGenerator:
 
         if save:
             cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
-            write_label(self.save_path + "/labels/train", label, bboxes)
+            write_label(self.save_path + "/labels/train", label, labels)
 
         else:
             pass
@@ -760,7 +760,7 @@ class ImageGenerator:
         # 2자리 번호판 맨 뒤에 label 전용 X 삽입
         if save:
             cv2.imwrite(self.save_path + "/images/train/" + label + "X.jpg", plate)
-            write_label(self.save_path + "/labels/train", f"{label}X", bboxes)
+            write_label(self.save_path + "/labels/train", f"{label}X", labels)
 
         else:
             pass
@@ -844,7 +844,7 @@ class ImageGenerator:
         # 2자리 번호판 맨 뒤에 label 전용 X 삽입
         if save:
             cv2.imwrite(self.save_path + "/images/train/" + label + "X.jpg", plate)
-            write_label(self.save_path + "/labels/train", f"{label}X", bboxes)
+            write_label(self.save_path + "/labels/train", f"{label}X", labels)
 
         else:
             pass
@@ -934,7 +934,7 @@ class ImageGenerator:
 
         if save:
             cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
-            write_label(self.save_path + "/labels/train", label, bboxes)
+            write_label(self.save_path + "/labels/train", label, labels)
 
         else:
             pass
@@ -1018,7 +1018,7 @@ class ImageGenerator:
         # 2자리 번호판 맨뒤에label 전용 X 삽입
         if save:
             cv2.imwrite(self.save_path + "/images/train/" + label + "X.jpg", plate)
-            write_label(self.save_path + "/labels/train", f"{label}X", bboxes)
+            write_label(self.save_path + "/labels/train", f"{label}X", labels)
 
         else:
             pass
