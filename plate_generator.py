@@ -1034,7 +1034,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     img_dir = args.img_dir
+
     A = ImageGenerator(img_dir)
+
+    if not os.path.isdir(f"{img_dir}"):
+        os.makedirs(f"{img_dir}/images/train", exist_ok=True)
+        os.makedirs(f"{img_dir}/labels/train", exist_ok=True)
 
     num_img = args.num
     Save = args.save
