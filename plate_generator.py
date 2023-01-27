@@ -206,7 +206,7 @@ class ImageGenerator:
 
         # loading Number
         file_path = "./num/"
-        file_list = os.listdir(file_path)
+        file_list = sorted(os.listdir(file_path))
         self.number = list()
         self.number_list = list()
 
@@ -218,7 +218,7 @@ class ImageGenerator:
 
         # loading Char
         file_path = "./char1/"
-        file_list = os.listdir(file_path)
+        file_list = sorted(os.listdir(file_path))
         self.char_list = list()
         self.char1 = list()
 
@@ -230,7 +230,7 @@ class ImageGenerator:
 
         # loading Number ====================  yellow-two-line  ==========================
         file_path = "./num_y/"
-        file_list = os.listdir(file_path)
+        file_list = sorted(os.listdir(file_path))
         self.number_y = list()
         self.number_list_y = list()
 
@@ -242,7 +242,7 @@ class ImageGenerator:
 
         # loading Char
         file_path = "./char1_y/"
-        file_list = os.listdir(file_path)
+        file_list = sorted(os.listdir(file_path))
         self.char_list_y = list()
         self.char1_y = list()
 
@@ -254,7 +254,7 @@ class ImageGenerator:
 
         # loading Region
         file_path = "./region_y/"
-        file_list = os.listdir(file_path)
+        file_list = sorted(os.listdir(file_path))
         self.region_y = list()
         self.region_list_y = list()
 
@@ -266,7 +266,7 @@ class ImageGenerator:
 
         # loading vertical Region
         file_path = "./region_py/"
-        file_list = os.listdir(file_path)
+        file_list = sorted(os.listdir(file_path))
         self.region_py = list()
         self.region_list_py = list()
 
@@ -279,7 +279,7 @@ class ImageGenerator:
 
         # loading Number ====================  green-two-line  ==========================
         file_path = "./num_g/"
-        file_list = os.listdir(file_path)
+        file_list = sorted(os.listdir(file_path))
         self.number_g = list()
         self.number_list_g = list()
 
@@ -291,7 +291,7 @@ class ImageGenerator:
 
         # loading Char
         file_path = "./char1_g/"
-        file_list = os.listdir(file_path)
+        file_list = sorted(os.listdir(file_path))
         self.char_list_g = list()
         self.char1_g = list()
 
@@ -303,7 +303,7 @@ class ImageGenerator:
 
         # loading green Region
         file_path = "./region_g/"
-        file_list = os.listdir(file_path)
+        file_list = sorted(os.listdir(file_path))
         self.region_g = list()
         self.region_list_g = list()
 
@@ -316,7 +316,7 @@ class ImageGenerator:
 
         # loading transparent images for electronic car number plate
         file_path = "./num_tr/"
-        file_list = os.listdir(file_path)
+        file_list = sorted(os.listdir(file_path))
         self.number_tr = list()
         self.number_list_tr = list()
 
@@ -328,7 +328,7 @@ class ImageGenerator:
 
         # loading Char
         file_path = "./char_tr/"
-        file_list = os.listdir(file_path)
+        file_list = sorted(os.listdir(file_path))
         self.char_list_tr = list()
         self.char_tr = list()
 
