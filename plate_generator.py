@@ -88,9 +88,12 @@ def write_label(target_dir: str, fname: str, bboxes: np.ndarray) -> None:
 
 
 def random_resize(
-    img: np.ndarray, label: Optional[Union[np.ndarray, None]] = None
+    img: np.ndarray,
+    label: Optional[Union[np.ndarray, None]] = None,
+    scale_min: Union[int, float] = 0.75,
+    scale_max: Union[int, float] = 2.5,
 ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
-    scaled = random.uniform(0.75, 2.5)
+    scaled = random.uniform(scale_min, scale_max)
     h, w = img.shape[:2]
 
     if h > w:
@@ -186,8 +189,32 @@ def draw_bbox_on_img(img: np.ndarray, label: np.ndarray) -> np.ndarray:
     return np.asarray(img)
 
 
+def save_img_label(
+    img: np.ndarray,
+    labels: np.ndarray,
+    target_dir: str,
+    fname: str,
+    resize: bool = True,
+    resize_scale: Tuple[Union[int, float]] = (0.5, 2.5),
+    debug: bool = True,
+):
+    if resize:
+        plate, labels = random_resize(img, labels, scale_min=resize_scale[0], scale_max=resize_scale[1])
+
+    if debug:
+        img = draw_bbox_on_img(img=img, label=labels)
+
+    cv2.imwrite(target_dir + "/images/train/" + fname + ".jpg", img)
+    write_label(target_dir + "/labels/train", fname, labels)
+
+
 class ImageGenerator:
-    def __init__(self, save_path: str, random_resize: Optional[bool] = True, debug: Optional[bool] = False):
+    def __init__(
+        self,
+        save_path: str,
+        random_resize: Optional[bool] = True,
+        debug: Optional[bool] = False,
+    ):
         self.save_path = save_path
 
         # Plate
@@ -535,18 +562,14 @@ class ImageGenerator:
         plate = random_bright(plate)
         labels = convert_bbox_to_label(bboxes)
 
-        if self.random_resize:
-            plate, labels = random_resize(plate, labels)
-
-        if self.debug:
-            plate = draw_bbox_on_img(img=plate, label=labels)
-
-        if save:
-            cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
-            write_label(self.save_path + "/labels/train", label, labels)
-
-        else:
-            pass
+        save_img_label(
+            img=plate,
+            labels=labels,
+            target_dir=self.save_path,
+            fname=label,
+            resize=True,
+            debug=False,
+        )
 
     def yellow_short(self, region_label: int, char_label: int, save: bool = True):
         number_y = [cv2.resize(number, (44, 60)) for number in self.number_y]
@@ -641,18 +664,14 @@ class ImageGenerator:
         plate = random_bright(plate)
         labels = convert_bbox_to_label(bboxes)
 
-        if self.random_resize:
-            plate, labels = random_resize(plate, labels)
-
-        if self.debug:
-            plate = draw_bbox_on_img(img=plate, label=labels)
-
-        if save:
-            cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
-            write_label(self.save_path + "/labels/train", label, labels)
-
-        else:
-            pass
+        save_img_label(
+            img=plate,
+            labels=labels,
+            target_dir=self.save_path,
+            fname=label,
+            resize=True,
+            debug=False,
+        )
 
     def electronic_long(self, char_label: int, save: bool = True):
         number_tr = [cv2.resize(number, (56, 83)) for number in self.number_tr]
@@ -751,19 +770,14 @@ class ImageGenerator:
         plate = random_bright(plate)
         labels = convert_bbox_to_label(bboxes)
 
-        if self.random_resize:
-            plate, labels = random_resize(plate, labels)
-
-        if self.debug:
-            plate = draw_bbox_on_img(img=plate, label=labels)
-
-        # 2자리 번호판 맨 뒤에 label 전용 X 삽입
-        if save:
-            cv2.imwrite(self.save_path + "/images/train/" + label + "X.jpg", plate)
-            write_label(self.save_path + "/labels/train", f"{label}X", labels)
-
-        else:
-            pass
+        save_img_label(
+            img=plate,
+            labels=labels,
+            target_dir=self.save_path,
+            fname=f"{label}X",
+            resize=True,
+            debug=False,
+        )
 
     def white_long_2digits(self, char_label: int, save: bool = True):
         number = [cv2.resize(number, (56, 83)) for number in self.number]
@@ -835,19 +849,14 @@ class ImageGenerator:
         plate = random_bright(plate)
         labels = convert_bbox_to_label(bboxes)
 
-        if self.random_resize:
-            plate, labels = random_resize(plate, labels)
-
-        if self.debug:
-            plate = draw_bbox_on_img(img=plate, label=labels)
-
-        # 2자리 번호판 맨 뒤에 label 전용 X 삽입
-        if save:
-            cv2.imwrite(self.save_path + "/images/train/" + label + "X.jpg", plate)
-            write_label(self.save_path + "/labels/train", f"{label}X", labels)
-
-        else:
-            pass
+        save_img_label(
+            img=plate,
+            labels=labels,
+            target_dir=self.save_path,
+            fname=f"{label}X",
+            resize=True,
+            debug=False,
+        )
 
     def white_long_3digits(self, char_label: int, save: bool = True):
         number = [cv2.resize(number, (56, 83)) for number in self.number]
@@ -926,18 +935,14 @@ class ImageGenerator:
         plate = random_bright(plate)
         labels = convert_bbox_to_label(bboxes)
 
-        if self.random_resize:
-            plate, labels = random_resize(plate, labels)
-
-        if self.debug:
-            plate = draw_bbox_on_img(img=plate, label=labels)
-
-        if save:
-            cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
-            write_label(self.save_path + "/labels/train", label, labels)
-
-        else:
-            pass
+        save_img_label(
+            img=plate,
+            labels=labels,
+            target_dir=self.save_path,
+            fname=label,
+            resize=True,
+            debug=False,
+        )
 
     def white_short_2digits(self, char_label: int, save: bool = True):
         number = [cv2.resize(number, (45, 83)) for number in self.number]
@@ -1009,19 +1014,14 @@ class ImageGenerator:
         plate = random_bright(plate)
         labels = convert_bbox_to_label(bboxes)
 
-        if self.random_resize:
-            plate, labels = random_resize(plate, labels)
-
-        if self.debug:
-            plate = draw_bbox_on_img(img=plate, label=labels)
-
-        # 2자리 번호판 맨뒤에label 전용 X 삽입
-        if save:
-            cv2.imwrite(self.save_path + "/images/train/" + label + "X.jpg", plate)
-            write_label(self.save_path + "/labels/train", f"{label}X", labels)
-
-        else:
-            pass
+        save_img_label(
+            img=plate,
+            labels=labels,
+            target_dir=self.save_path,
+            fname=f"{label}X",
+            resize=True,
+            debug=False,
+        )
 
 
 if __name__ == "__main__":

@@ -19,19 +19,19 @@ if not os.path.isdir(f"{save_path}"):
 
 
 # 2digit white short
-for char in range(35):
-    for _ in range(320):
-        generator.white_short_2digits(char, True)
-
-# 2digit white long
-for char in range(35):
-    for _ in range(320):
-        generator.white_long_2digits(char, True)
-
-# 3digit white long
-for char in range(35):
-    for _ in range(320):
-        generator.white_long_3digits(char, True)
+# for char in range(35):
+#     for _ in range(320):
+#         generator.white_short_2digits(char, True)
+#
+# # 2digit white long
+# for char in range(35):
+#     for _ in range(320):
+#         generator.white_long_2digits(char, True)
+#
+# # 3digit white long
+# for char in range(35):
+#     for _ in range(320):
+#         generator.white_long_3digits(char, True)
 
 # electronic long
 for char in range(40):
