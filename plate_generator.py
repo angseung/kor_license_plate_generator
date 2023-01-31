@@ -8,6 +8,25 @@ from PIL import Image, ImageDraw
 from class_labels import class_dict
 
 
+def parse_label(fname: str) -> np.ndarray:
+    """
+    parses the label file, then converts it to np.ndarray type
+    Args:
+        fname: label file name
+
+    Returns: label as np.ndarray
+
+    """
+    with open(fname, encoding="utf-8") as f:
+        bboxes = f.readlines()
+        label = []
+
+    for bbox in bboxes:
+        label.append(bbox.split())
+
+    return np.array(label, dtype=np.float64)
+
+
 def random_bright(img: np.ndarray) -> np.ndarray:
     img = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
     img = np.array(img, dtype=np.float64)
@@ -176,8 +195,9 @@ def label_voc2yolo(label_voc: np.ndarray, h: int, w: int) -> np.ndarray:
     return label_yolo
 
 
-def draw_bbox_on_img(img: np.ndarray, label: np.ndarray) -> np.ndarray:
-    label = label_yolo2voc(label, *(img.shape[:2]))
+def draw_bbox_on_img(img: np.ndarray, label: np.ndarray, is_voc: bool = False) -> np.ndarray:
+    if not is_voc:
+        label = label_yolo2voc(label, *(img.shape[:2]))
 
     img = Image.fromarray(img)
     draw = ImageDraw.Draw(img)
