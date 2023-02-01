@@ -400,7 +400,7 @@ def save_img_label(
     if perspective:
         img, labels = random_perspective(img, labels, mode=mode)
 
-    img = remove_white_bg(img)
+    # img = remove_white_bg(img)
 
     if resize:
         img, labels = random_resize(
@@ -664,21 +664,17 @@ class ImageGenerator:
         plate[row : row + w, col : col + h, :] = number2_g[rand_int]
         bboxes.append(make_bboxes(plate, number2_g[rand_int], rand_int, row, col))
         col += 64
-        plate = random_bright(plate)
+        # plate = random_bright(plate)
         labels = convert_bbox_to_label(bboxes)
 
-        if self.random_resize:
-            plate, labels = random_resize(plate, labels)
-
-        if self.debug:
-            plate = draw_bbox_on_img(img=plate, label=labels)
-
-        if save:
-            cv2.imwrite(self.save_path + "/images/train/" + label + ".jpg", plate)
-            write_label(self.save_path + "/labels/train", label, labels)
-
-        else:
-            pass
+        save_img_label(
+            img=plate,
+            labels=labels,
+            target_dir=self.save_path,
+            fname=label,
+            resize=True,
+            debug=False,
+        )
 
     def yellow_long(self, region_label: int, char_label: int, save: bool = True):
         number_y = [cv2.resize(number, (56, 83)) for number in self.number_y]
@@ -768,7 +764,7 @@ class ImageGenerator:
         plate[row : row + w, col : col + h, :] = number_y[rand_int]
         bboxes.append(make_bboxes(plate, number_y[rand_int], rand_int, row, col))
         col += 56
-        plate = random_bright(plate)
+        # plate = random_bright(plate)
         labels = convert_bbox_to_label(bboxes)
 
         save_img_label(
@@ -870,7 +866,7 @@ class ImageGenerator:
         plate[row : row + w, col : col + h, :] = number2_y[rand_int]
         bboxes.append(make_bboxes(plate, number2_y[rand_int], rand_int, row, col))
         col += 64
-        plate = random_bright(plate)
+        # plate = random_bright(plate)
         labels = convert_bbox_to_label(bboxes)
 
         save_img_label(
@@ -976,7 +972,7 @@ class ImageGenerator:
         bboxes.append(make_bboxes(plate, number_tr[rand_int], rand_int, row, col))
         col += 56
 
-        plate = random_bright(plate)
+        # plate = random_bright(plate)
         labels = convert_bbox_to_label(bboxes)
 
         save_img_label(
@@ -1055,7 +1051,7 @@ class ImageGenerator:
         bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
         col += 56
 
-        plate = random_bright(plate)
+        # plate = random_bright(plate)
         labels = convert_bbox_to_label(bboxes)
 
         save_img_label(
@@ -1141,7 +1137,7 @@ class ImageGenerator:
         bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
         col += 56
 
-        plate = random_bright(plate)
+        # plate = random_bright(plate)
         labels = convert_bbox_to_label(bboxes)
 
         save_img_label(
@@ -1220,7 +1216,7 @@ class ImageGenerator:
         bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
         col += 45
 
-        plate = random_bright(plate)
+        # plate = random_bright(plate)
         labels = convert_bbox_to_label(bboxes)
 
         save_img_label(
@@ -1253,10 +1249,10 @@ if __name__ == "__main__":
     num_img = args.num
     Save = args.save
 
-    # A.yellow_long(0, 0, save=Save)
+    A.yellow_long(0, 0, save=Save)
     A.electronic_long(0, save=Save)
-    # A.white_long_2digits(0, save=Save)
-    # A.white_long_3digits(0, save=Save)
-    # A.white_short_2digits(0, save=Save)
-    # A.yellow_short(0, 0, save=Save)
-    # A.green_short(0, 0, save=Save)
+    A.white_long_2digits(0, save=Save)
+    A.white_long_3digits(0, save=Save)
+    A.white_short_2digits(0, save=Save)
+    A.yellow_short(0, 0, save=Save)
+    A.green_short(0, 0, save=Save)
