@@ -1,4 +1,3 @@
-from typing import Dict, List, Tuple
 import os
 import platform
 import math
@@ -11,8 +10,18 @@ if "Windows" in platform.platform():
     save_path = "./addons"
 elif "Linux" in platform.platform():
     save_path = "/data_yper/addons"
+else:
+    save_path = "./addons"
 
-generator = ImageGenerator(save_path=save_path, random_resize=True)
+generator = ImageGenerator(
+    save_path=save_path,
+    resize_opt=True,
+    resize_scale=(1.0, 3.0),
+    bright=True,
+    perspective=True,
+    mode="auto",
+    debug=True,
+)
 
 if not os.path.isdir(f"{save_path}"):
     os.makedirs(f"{save_path}/images/train", exist_ok=True)
