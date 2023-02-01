@@ -14,76 +14,140 @@ def warp_point(x: int, y: int, M: np.ndarray) -> Tuple[int, int]:
     )
 
 
+def random_perspective(img: np.ndarray, labels: np.ndarray, mode: str) -> Tuple[np.ndarray, np.ndarray]:
+    H, W = img.shape[:2]
+
+    # img = draw_bbox_on_img(img, labels, is_voc=False)
+    labels = label_yolo2voc(labels, H, W)
+
+    if mode in ["top", "bottom"]:
+        pad_l, pad_r = (50, 40)
+        img_padded = np.zeros([H, W + pad_l + pad_r, 3], dtype=np.uint8)
+        img_padded[:, :, :] = 255
+        img_padded[:, pad_l: -pad_r, :] = img
+
+        if mode == "top":
+            point_before = np.float32([
+                [2 * pad_l, 0],
+                [W + pad_l - pad_r, 0],
+                [2 * pad_l, H],
+                [W + pad_l - pad_r, H]
+            ])
+            point_after = np.float32([
+                [pad_l, 0],
+                [W + pad_l, 0],
+                [2 * pad_l, H],
+                [W + pad_l - pad_r, H]
+            ])
+
+        elif mode == "bottom":
+            point_before = np.float32([
+                [2 * pad_l, 0],
+                [W + pad_l - pad_r, 0],
+                [2 * pad_l, H],
+                [W + pad_l - pad_r, H]
+            ])
+            point_after = np.float32([
+                [2 * pad_l, 0],
+                [W + pad_l - pad_r, 0],
+                [pad_l, H],
+                [W + pad_l, H]
+            ])
+
+    elif mode in ["left", "right"]:
+        pad_top, pad_bottom = (30, 30)
+        img_padded = np.zeros([H + pad_top + pad_bottom, W, 3], dtype=np.uint8)
+        img_padded[:, :, :] = 255
+        img_padded[pad_top: -pad_bottom, :, :] = img
+
+        if mode == "left":
+            point_before = np.float32([
+                [0, 2 * pad_top],
+                [W, pad_top],
+                [0, H + pad_top - pad_bottom],
+                [W, H + pad_top]
+            ])
+            point_after = np.float32([
+                [0, pad_top],
+                [W, pad_top],
+                [0, H + pad_top],
+                [W, H + pad_top]
+            ])
+
+        elif mode == "right":
+            point_before = np.float32([
+                [0, pad_top],
+                [W, 2 * pad_top],
+                [0, H + pad_top],
+                [W, H + pad_top - pad_bottom]
+            ])
+            point_after = np.float32([
+                [0, pad_top],
+                [W, pad_top],
+                [0, H + pad_top],
+                [W, H + pad_top]
+            ])
+
+    mtrx = cv2.getPerspectiveTransform(point_before, point_after)
+    result = cv2.warpPerspective(img_padded, mtrx, img_padded.shape[:2][::-1])
+
+    for i, label in enumerate(labels):
+        xtl, ytl, xbr, ybr = label.tolist()[1:]
+
+        if mode in ["top", "bottom"]:
+            xtl += pad_l
+            xbr += pad_l
+
+        elif mode in ["left", "right"]:
+            ytl += pad_top
+            ybr += pad_top
+
+        xtl_new, ytl_new = warp_point(xtl, ytl, mtrx)
+        xtr_new, ytr_new = warp_point(xbr, ytl, mtrx)
+        xbl_new, ybl_new = warp_point(xtl, ybr, mtrx)
+        xbr_new, ybr_new = warp_point(xbr, ybr, mtrx)
+
+        labels[i, 1:] = np.uint32([
+            (xtl_new + xbl_new) // 2,
+            (ytl_new + ytr_new) // 2,
+            (xtr_new + xbr_new) // 2,
+            (ybl_new + ybr_new) // 2,
+        ])
+
+    labels = label_voc2yolo(labels, *result.shape[:2])
+
+    return result, labels
+
+
 img = cv2.imread("Z01sk4261X.jpg")
 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-H, W = img.shape[:2]
-
 labels = parse_label("Z01sk4261X.txt")
-# img = draw_bbox_on_img(img, labels, is_voc=False)
-labels_voc = label_yolo2voc(labels, H, W)
 
-pad = 50
-img_padded = np.zeros([H, W + 2 * pad, 3], dtype=np.uint8)
-img_padded[:, :, :] = 255
-img_padded[:, pad : -pad, :] = img
 
-point_before = np.float32([
-    [2 * pad, 0],
-    [W, 0],
-    [pad, H],
-    [W + pad, H]
-])
-point_after = np.float32([
-    [pad, 0],
-    [W + pad, 0],
-    [pad, H],
-    [W + pad, H]
-])
-mtrx = cv2.getPerspectiveTransform(point_before, point_after)
-result = cv2.warpPerspective(img_padded, mtrx, img_padded.shape[:2][::-1])
-
-for i, label in enumerate(labels_voc):
-    xtl, ytl, xbr, ybr = label.tolist()[1:]
-    xtl += pad
-    xbr += pad
-    # xtl_new, ytl_new , _ = np.matmul(mtrx, np.array([xtl, ytl, 1])).tolist()
-    # xtr_new, _ , _ = np.matmul(mtrx, np.array([xbr, ytl, 1])).tolist()
-    # xbl_new, _ , _ = np.matmul(mtrx, np.array([xtl, ybr, 1])).tolist()
-    # xbr_new, ybr_new , _ = np.matmul(mtrx, np.array([xbr, ybr, 1])).tolist()
-
-    # transformed_points = cv2.warpPerspective(np.float32([xtl, ytl]), mtrx, (2, 1), cv2.WARP_INVERSE_MAP)
-    # transformed_points = cv2.warpPerspective(np.float32([xtl, ytl]), mtrx, (2, 1))
-    xtl_new, ytl_new = warp_point(xtl, ytl, mtrx)
-    xtr_new, ytr_new = warp_point(xbr, ytl, mtrx)
-    xbl_new, ybl_new = warp_point(xtl, ybr, mtrx)
-    xbr_new, ybr_new = warp_point(xbr, ybr, mtrx)
-
-    labels_voc[i, 1:] = np.uint32([
-        (xtl_new + xbl_new) // 2,
-        (ytl_new + ytr_new) // 2,
-        (xtr_new + xbr_new) // 2,
-        (ybl_new + ybr_new) // 2,
-    ])
-
-    # w_new, h_new = xtr_new - xtl_new, ybr_new - ytl_new
-    # w_new, h_new = xbr_new - xbl_new, ybr_new - ytl_new
-    # xbr_new -= pad
-    # labels_voc[i, 1:] = np.uint32([xtl_new, ytl_new, xtl_new + w_new, ytl_new + h_new])
-    # labels_voc[i, 1:] = np.uint32([xbr_new - w_new, ybr_new - h_new, xbr_new, ybr_new])
-
-labels_yolo = label_voc2yolo(labels_voc, *result.shape[:2])
-result = draw_bbox_on_img(result, labels_yolo, is_voc=False)
+# labels_yolo = label_voc2yolo(labels_voc, *result.shape[:2])
 # result = draw_bbox_on_img(result, labels, is_voc=False)
 
-plt.subplot(211)
-plt.imshow(img_padded)
-plt.plot(xtl, ytl, "og", markersize=5)  # og:shorthand for green circle
-plt.plot(xbr, ybr, "og", markersize=5)  # og:shorthand for green circle
+plt.subplot(221)
+result1, labels1 = random_perspective(img, labels, mode="left")
+result1 = draw_bbox_on_img(result1, labels1, is_voc=False)
+plt.imshow(result1)
 
-plt.subplot(212)
-plt.imshow(result)
-plt.plot(xtl_new, ytl_new, "og", markersize=5)  # og:shorthand for green circle
-plt.plot(xtr_new, ytr_new, "og", markersize=5)  # og:shorthand for green circle
-plt.plot(xbl_new, ybl_new, "og", markersize=5)  # og:shorthand for green circle
-plt.plot(xbr_new, ybr_new, "og", markersize=5)  # og:shorthand for green circle
+plt.subplot(222)
+result2, labels2 = random_perspective(img, labels, mode="right")
+result2 = draw_bbox_on_img(result2, labels2, is_voc=False)
+plt.imshow(result2)
+
+# plt.subplot(211)
+plt.subplot(223)
+result3, labels3 = random_perspective(img, labels, mode="top")
+# result, labels = random_perspective(result, labels, mode="left")
+result3 = draw_bbox_on_img(result3, labels3, is_voc=False)
+plt.imshow(result3)
+
+# plt.subplot(212)
+plt.subplot(224)
+result4, labels4 = random_perspective(img, labels, mode="bottom")
+result4 = draw_bbox_on_img(result4, labels4, is_voc=False)
+plt.imshow(result4)
+
 plt.show()
