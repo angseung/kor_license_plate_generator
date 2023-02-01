@@ -8,6 +8,148 @@ from PIL import Image, ImageDraw
 from class_labels import class_dict
 
 
+def remove_white_bg(img: np.ndarray) -> np.ndarray:
+    # Convert image to image gray
+    tmp = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+
+    # Applying thresholding technique
+    _, alpha = cv2.threshold(tmp, 250, 255, cv2.THRESH_BINARY_INV)
+
+    # Using cv2.split() to split channels
+    # of coloured image
+    b, g, r = cv2.split(img)
+
+    # Making list of Red, Green, Blue
+    # Channels and alpha
+    rgba = [b, g, r, alpha]
+
+    # Using cv2.merge() to merge rgba
+    # into a coloured/multi-channeled image
+    return cv2.merge(rgba, 4)
+
+
+def warp_point(x: int, y: int, M: np.ndarray) -> Tuple[int, int]:
+    d = M[2, 0] * x + M[2, 1] * y + M[2, 2]
+
+    return (
+        int((M[0, 0] * x + M[0, 1] * y + M[0, 2]) / d),  # x
+        int((M[1, 0] * x + M[1, 1] * y + M[1, 2]) / d),  # y
+    )
+
+
+def random_perspective(
+    img: np.ndarray,
+    labels: np.ndarray,
+    mode: str,
+    max_pad_order: Tuple[int, int] = (4, 8),
+) -> Tuple[np.ndarray, np.ndarray]:
+    H, W = img.shape[:2]
+    max_pad_h = H // max_pad_order[0]
+    max_pad_w = W // max_pad_order[1]
+
+    labels = label_yolo2voc(labels, H, W)
+
+    if mode in ["top", "bottom"]:
+        pad_l, pad_r = (random.randint(1, max_pad_w), random.randint(1, max_pad_w))
+
+        img_padded = np.zeros([H, W + pad_l + pad_r, 3], dtype=np.uint8)
+        img_padded[:, :, :] = 255
+        img_padded[:, pad_l:-pad_r, :] = img
+
+        if mode == "top":
+            point_before = np.float32(
+                [
+                    [2 * pad_l, 0],
+                    [W + pad_l - pad_r, 0],
+                    [2 * pad_l, H],
+                    [W + pad_l - pad_r, H],
+                ]
+            )
+            point_after = np.float32(
+                [[pad_l, 0], [W + pad_l, 0], [2 * pad_l, H], [W + pad_l - pad_r, H]]
+            )
+
+        elif mode == "bottom":
+            point_before = np.float32(
+                [
+                    [2 * pad_l, 0],
+                    [W + pad_l - pad_r, 0],
+                    [2 * pad_l, H],
+                    [W + pad_l - pad_r, H],
+                ]
+            )
+            point_after = np.float32(
+                [[2 * pad_l, 0], [W + pad_l - pad_r, 0], [pad_l, H], [W + pad_l, H]]
+            )
+
+    elif mode in ["left", "right"]:
+        pad_top, pad_bottom = (
+            random.randint(1, max_pad_h),
+            random.randint(1, max_pad_h),
+        )
+        img_padded = np.zeros([H + pad_top + pad_bottom, W, 3], dtype=np.uint8)
+        img_padded[:, :, :] = 255
+        img_padded[pad_top:-pad_bottom, :, :] = img
+
+        if mode == "left":
+            point_before = np.float32(
+                [
+                    [0, 2 * pad_top],
+                    [W, pad_top],
+                    [0, H + pad_top - pad_bottom],
+                    [W, H + pad_top],
+                ]
+            )
+            point_after = np.float32(
+                [[0, pad_top], [W, pad_top], [0, H + pad_top], [W, H + pad_top]]
+            )
+
+        elif mode == "right":
+            point_before = np.float32(
+                [
+                    [0, pad_top],
+                    [W, 2 * pad_top],
+                    [0, H + pad_top],
+                    [W, H + pad_top - pad_bottom],
+                ]
+            )
+            point_after = np.float32(
+                [[0, pad_top], [W, pad_top], [0, H + pad_top], [W, H + pad_top]]
+            )
+
+    mtrx = cv2.getPerspectiveTransform(point_before, point_after)
+    result = cv2.warpPerspective(img_padded, mtrx, img_padded.shape[:2][::-1])
+
+    for i, label in enumerate(labels):
+        xtl, ytl, xbr, ybr = label.tolist()[1:]
+
+        if mode in ["top", "bottom"]:
+            xtl += pad_l
+            xbr += pad_l
+
+        elif mode in ["left", "right"]:
+            ytl += pad_top
+            ybr += pad_top
+
+        xtl_new, ytl_new = warp_point(xtl, ytl, mtrx)
+        xtr_new, ytr_new = warp_point(xbr, ytl, mtrx)
+        xbl_new, ybl_new = warp_point(xtl, ybr, mtrx)
+        xbr_new, ybr_new = warp_point(xbr, ybr, mtrx)
+
+        labels[i, 1:] = np.uint32(
+            [
+                (xtl_new + xbl_new) // 2,
+                (ytl_new + ytr_new) // 2,
+                (xtr_new + xbr_new) // 2,
+                (ybl_new + ybr_new) // 2,
+            ]
+        )
+
+    labels = label_voc2yolo(labels, *result.shape[:2])
+
+    return result, labels
+
+
 def parse_label(fname: str) -> np.ndarray:
     """
     parses the label file, then converts it to np.ndarray type
@@ -59,7 +201,7 @@ def blend_argb_with_argb(
     fg: np.ndarray, bg: np.ndarray, row: int, col: int
 ) -> np.ndarray:
 
-    assert len(fg.shape) == 4 and len(bg.shape) == 4
+    assert fg.shape[2] == 4 and bg.shape[2] == 4
 
     h, w = fg.shape[:2]
     
@@ -79,7 +221,12 @@ def blend_argb_with_argb(
     bOut = (bA * aA / 255) + (bB * aB * (255 - aA) / (255 * 255))
     aOut = aA + (aB * (255 - aA) / 255)
 
-    return np.concatenate([bOut, gOut, rOut, aOut], axis=2)
+    bg[row: row + h, col: col + w, 0] = bOut
+    bg[row: row + h, col: col + w, 1] = gOut
+    bg[row: row + h, col: col + w, 2] = rOut
+    bg[row: row + h, col: col + w, 3] = aOut
+
+    return bg
 
 
 def make_bboxes(
@@ -245,17 +392,28 @@ def save_img_label(
     fname: str,
     resize: bool = True,
     resize_scale: Tuple[Union[int, float]] = (0.5, 2.5),
+    bright: bool = True,
+    perspective: bool = True,
+    mode: str = "top",
     debug: bool = True,
 ):
+    if perspective:
+        img, labels = random_perspective(img, labels, mode=mode)
+
+    img = remove_white_bg(img)
+
     if resize:
-        plate, labels = random_resize(
+        img, labels = random_resize(
             img, labels, scale_min=resize_scale[0], scale_max=resize_scale[1]
         )
+
+    if bright:
+        img = random_bright(img)
 
     if debug:
         img = draw_bbox_on_img(img=img, label=labels)
 
-    cv2.imwrite(target_dir + "/images/train/" + fname + ".jpg", img)
+    cv2.imwrite(target_dir + "/images/train/" + fname + ".png", img)
     write_label(target_dir + "/labels/train", fname, labels)
 
 
