@@ -9,6 +9,7 @@ from plate_generator import (
     label_yolo2voc,
     label_voc2yolo,
     draw_bbox_on_img,
+    blend_argb_with_rgb,
 )
 
 random.seed(datetime.now().timestamp())
@@ -152,14 +153,46 @@ plt.imshow(result2)
 
 plt.subplot(223)
 result3, labels3 = random_perspective(img, labels, mode="top")
-result3, labels3 = random_perspective(result3, labels3, mode="left")
+# result3, labels3 = random_perspective(result3, labels3, mode="left")
 result3 = draw_bbox_on_img(result3, labels3, is_voc=False)
 plt.imshow(result3)
 
 plt.subplot(224)
 result4, labels4 = random_perspective(img, labels, mode="bottom")
-result4, labels4 = random_perspective(result4, labels4, mode="right")
+# result4, labels4 = random_perspective(result4, labels4, mode="right")
 result4 = draw_bbox_on_img(result4, labels4, is_voc=False)
 plt.imshow(result4)
-
 plt.show()
+
+
+def remove_white_bg(img: np.ndarray) -> np.ndarray:
+    # Convert image to image gray
+    tmp = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+
+    # Applying thresholding technique
+    _, alpha = cv2.threshold(tmp, 250, 255, cv2.THRESH_BINARY_INV)
+
+    # Using cv2.split() to split channels
+    # of coloured image
+    b, g, r = cv2.split(result4)
+
+    # Making list of Red, Green, Blue
+    # Channels and alpha
+    rgba = [b, g, r, alpha]
+
+    # Using cv2.merge() to merge rgba
+    # into a coloured/multi-channeled image
+    return cv2.merge(rgba, 4)
+
+
+tmp = np.zeros((3000, 3000, 3), dtype=np.uint8)
+tmp[:, :, :] = 0
+dst = remove_white_bg(result4)
+img_tr = blend_argb_with_rgb(fg=dst, bg=tmp, row=0, col=1)
+
+plt.imshow(img_tr)
+plt.show()
+
+# Writing and saving to a new image
+img_tr = cv2.cvtColor(img_tr, cv2.COLOR_BGR2RGB)
+cv2.imwrite("this.png", img_tr)
