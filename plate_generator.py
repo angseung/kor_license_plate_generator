@@ -55,6 +55,34 @@ def blend_argb_with_rgb(
     return blended
 
 
+def blend_argb_with_argb(
+    fg: np.ndarray, bg: np.ndarray, row: int, col: int
+) -> np.ndarray:
+
+    assert len(fg.shape) == 4 and len(bg.shape) == 4
+
+    h, w = fg.shape[:2]
+    
+    cropped_bg = bg[row : row + h, col : col + w, :]
+
+
+    rOut = (rA * aA / 255) + (rB * aB * (255 - aA) / (255 * 255))
+    gOut = (gA * aA / 255) + (gB * aB * (255 - aA) / (255 * 255))
+    bOut = (bA * aA / 255) + (bB * aB * (255 - aA) / (255 * 255))
+    aOut = aA + (aB * (255 - aA) / 255)
+    # _, mask = cv2.threshold(fg[:, :, 3], 1, 255, cv2.THRESH_BINARY)
+    # mask_inv = cv2.bitwise_not(mask)
+    # img_fg = cv2.cvtColor(fg, cv2.COLOR_BGRA2BGR)
+    # h, w = img_fg.shape[:2]
+    # roi = bg[row : row + h, col : col + w]
+    #
+    # masked_fg = cv2.bitwise_and(img_fg, img_fg, mask=mask)
+    # masked_bg = cv2.bitwise_and(roi, roi, mask=mask_inv)
+    # blended = masked_fg + masked_bg
+
+    return blended
+
+
 def make_bboxes(
     img: np.ndarray, obj: np.ndarray, label: int, ytl: int, xtl: int
 ) -> str:
