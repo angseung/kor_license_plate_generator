@@ -395,7 +395,7 @@ def save_img_label(
     bright: bool = True,
     perspective: bool = True,
     mode: str = "top",
-    debug: bool = True,
+    debug: bool = False,
 ):
     if perspective:
         img, labels = random_perspective(img, labels, mode=mode)
@@ -1253,10 +1253,10 @@ if __name__ == "__main__":
     num_img = args.num
     Save = args.save
 
-    A.yellow_long(0, 0, save=Save)
+    # A.yellow_long(0, 0, save=Save)
     A.electronic_long(0, save=Save)
-    A.white_long_2digits(0, save=Save)
-    A.white_long_3digits(0, save=Save)
-    A.white_short_2digits(0, save=Save)
-    A.yellow_short(0, 0, save=Save)
-    A.green_short(0, 0, save=Save)
+    # A.white_long_2digits(0, save=Save)
+    # A.white_long_3digits(0, save=Save)
+    # A.white_short_2digits(0, save=Save)
+    # A.yellow_short(0, 0, save=Save)
+    # A.green_short(0, 0, save=Save)
