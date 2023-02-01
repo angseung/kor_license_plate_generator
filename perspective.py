@@ -19,7 +19,7 @@ img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 H, W = img.shape[:2]
 
 labels = parse_label("Z01sk4261X.txt")
-img = draw_bbox_on_img(img, labels, is_voc=False)
+# img = draw_bbox_on_img(img, labels, is_voc=False)
 labels_voc = label_yolo2voc(labels, H, W)
 
 pad = 50
@@ -58,14 +58,21 @@ for i, label in enumerate(labels_voc):
     xbl_new, ybl_new = warp_point(xtl, ybr, mtrx)
     xbr_new, ybr_new = warp_point(xbr, ybr, mtrx)
 
+    labels_voc[i, 1:] = np.uint32([
+        (xtl_new + xbl_new) // 2,
+        (ytl_new + ytr_new) // 2,
+        (xtr_new + xbr_new) // 2,
+        (ybl_new + ybr_new) // 2,
+    ])
+
     # w_new, h_new = xtr_new - xtl_new, ybr_new - ytl_new
     # w_new, h_new = xbr_new - xbl_new, ybr_new - ytl_new
     # xbr_new -= pad
     # labels_voc[i, 1:] = np.uint32([xtl_new, ytl_new, xtl_new + w_new, ytl_new + h_new])
     # labels_voc[i, 1:] = np.uint32([xbr_new - w_new, ybr_new - h_new, xbr_new, ybr_new])
 
-# labels_yolo = label_voc2yolo(labels_voc, *result.shape[:2])
-# result = draw_bbox_on_img(result, labels_yolo, is_voc=False)
+labels_yolo = label_voc2yolo(labels_voc, *result.shape[:2])
+result = draw_bbox_on_img(result, labels_yolo, is_voc=False)
 # result = draw_bbox_on_img(result, labels, is_voc=False)
 
 plt.subplot(211)
@@ -76,5 +83,7 @@ plt.plot(xbr, ybr, "og", markersize=5)  # og:shorthand for green circle
 plt.subplot(212)
 plt.imshow(result)
 plt.plot(xtl_new, ytl_new, "og", markersize=5)  # og:shorthand for green circle
+plt.plot(xtr_new, ytr_new, "og", markersize=5)  # og:shorthand for green circle
+plt.plot(xbl_new, ybl_new, "og", markersize=5)  # og:shorthand for green circle
 plt.plot(xbr_new, ybr_new, "og", markersize=5)  # og:shorthand for green circle
 plt.show()
