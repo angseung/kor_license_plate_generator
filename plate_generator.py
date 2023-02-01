@@ -63,24 +63,23 @@ def blend_argb_with_argb(
 
     h, w = fg.shape[:2]
     
-    cropped_bg = bg[row : row + h, col : col + w, :]
+    cropped_bg = bg[row : row + h, col : col + w, :]  # BGRA
+    bA = cropped_bg[:, :, 0]
+    gA = cropped_bg[:, :, 1]
+    rA = cropped_bg[:, :, 2]
+    aA = cropped_bg[:, :, 3]
 
+    bB = fg[:, :, 0]
+    gB = fg[:, :, 1]
+    rB = fg[:, :, 2]
+    aB = fg[:, :, 3]
 
     rOut = (rA * aA / 255) + (rB * aB * (255 - aA) / (255 * 255))
     gOut = (gA * aA / 255) + (gB * aB * (255 - aA) / (255 * 255))
     bOut = (bA * aA / 255) + (bB * aB * (255 - aA) / (255 * 255))
     aOut = aA + (aB * (255 - aA) / 255)
-    # _, mask = cv2.threshold(fg[:, :, 3], 1, 255, cv2.THRESH_BINARY)
-    # mask_inv = cv2.bitwise_not(mask)
-    # img_fg = cv2.cvtColor(fg, cv2.COLOR_BGRA2BGR)
-    # h, w = img_fg.shape[:2]
-    # roi = bg[row : row + h, col : col + w]
-    #
-    # masked_fg = cv2.bitwise_and(img_fg, img_fg, mask=mask)
-    # masked_bg = cv2.bitwise_and(roi, roi, mask=mask_inv)
-    # blended = masked_fg + masked_bg
 
-    return blended
+    return np.concatenate([bOut, gOut, rOut, aOut], axis=2)
 
 
 def make_bboxes(
