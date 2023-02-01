@@ -185,7 +185,6 @@ if __name__ == "__main__":
     plt.imshow(result4)
     plt.show()
 
-
     tmp = np.zeros((3000, 3000, 3), dtype=np.uint8)
     tmp[:, :, :] = 0
     dst = remove_white_bg(result4)

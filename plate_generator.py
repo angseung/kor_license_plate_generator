@@ -1,5 +1,6 @@
 import os
 import random
+from datetime import datetime
 import argparse
 from typing import List, Union, Tuple, Optional
 import cv2
@@ -40,12 +41,19 @@ def warp_point(x: int, y: int, M: np.ndarray) -> Tuple[int, int]:
 def random_perspective(
     img: np.ndarray,
     labels: np.ndarray,
-    mode: str,
+    mode: str = "auto",
     max_pad_order: Tuple[int, int] = (4, 8),
 ) -> Tuple[np.ndarray, np.ndarray]:
+    random.seed(datetime.now().timestamp())
+
     H, W = img.shape[:2]
     max_pad_h = H // max_pad_order[0]
     max_pad_w = W // max_pad_order[1]
+
+    if mode == "auto":
+        mode_list = ["top", "bottom", "left", "right"]
+        selected = random.randint(0, 3)
+        mode = mode_list[selected]
 
     labels = label_yolo2voc(labels, H, W)
 
@@ -170,6 +178,8 @@ def parse_label(fname: str) -> np.ndarray:
 
 
 def random_bright(img: np.ndarray) -> np.ndarray:
+    random.seed(datetime.now().timestamp())
+
     img = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
     img = np.array(img, dtype=np.float64)
     random_bright = 0.5 + np.random.uniform()
@@ -204,7 +214,7 @@ def blend_argb_with_argb(
     assert fg.shape[2] == 4 and bg.shape[2] == 4
 
     h, w = fg.shape[:2]
-    
+
     cropped_bg = bg[row : row + h, col : col + w, :]  # BGRA
     bA = cropped_bg[:, :, 0]
     gA = cropped_bg[:, :, 1]
@@ -221,10 +231,10 @@ def blend_argb_with_argb(
     bOut = (bA * aA / 255) + (bB * aB * (255 - aA) / (255 * 255))
     aOut = aA + (aB * (255 - aA) / 255)
 
-    bg[row: row + h, col: col + w, 0] = bOut
-    bg[row: row + h, col: col + w, 1] = gOut
-    bg[row: row + h, col: col + w, 2] = rOut
-    bg[row: row + h, col: col + w, 3] = aOut
+    bg[row : row + h, col : col + w, 0] = bOut
+    bg[row : row + h, col : col + w, 1] = gOut
+    bg[row : row + h, col : col + w, 2] = rOut
+    bg[row : row + h, col : col + w, 3] = aOut
 
     return bg
 
@@ -286,6 +296,7 @@ def random_resize(
     scale_min: Union[int, float] = 0.75,
     scale_max: Union[int, float] = 2.5,
 ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+    random.seed(datetime.now().timestamp())
     scaled = random.uniform(scale_min, scale_max)
     h, w = img.shape[:2]
 
@@ -391,10 +402,10 @@ def save_img_label(
     target_dir: str,
     fname: str,
     resize: bool = True,
-    resize_scale: Tuple[Union[int, float]] = (0.5, 2.5),
+    resize_scale: Tuple[float, float] = (1.0, 3.0),
     bright: bool = True,
     perspective: bool = True,
-    mode: str = "top",
+    mode: str = "auto",
     debug: bool = False,
 ):
     if perspective:
@@ -421,9 +432,19 @@ class ImageGenerator:
     def __init__(
         self,
         save_path: str,
-        random_resize: Optional[bool] = True,
+        resize_opt: Optional[bool] = True,
+        resize_scale: Optional[Tuple[float, float]] = (1.0, 3.0),
+        bright: Optional[bool] = True,
+        perspective: Optional[bool] = True,
+        mode: Optional[str] = "auto",
         debug: Optional[bool] = False,
     ):
+        self.random_resize = resize_opt
+        self.resize_scale = resize_scale
+        self.bright = bright
+        self.perspective = perspective
+        self.mode = mode
+        self.debug = debug
         self.save_path = save_path
 
         # Plate
@@ -437,8 +458,6 @@ class ImageGenerator:
         self.new_plate4 = cv2.imread("new_plate4.png")
         self.new_plate8 = cv2.imread("new_plate8.png")
         self.class_dict = class_dict
-        self.random_resize = random_resize
-        self.debug = debug
 
         # loading Number
         file_path = "./num/"
@@ -672,8 +691,12 @@ class ImageGenerator:
             labels=labels,
             target_dir=self.save_path,
             fname=label,
-            resize=True,
-            debug=False,
+            resize=self.random_resize,
+            resize_scale=self.resize_scale,
+            bright=self.bright,
+            perspective=self.perspective,
+            mode=self.mode,
+            debug=self.debug,
         )
 
     def yellow_long(self, region_label: int, char_label: int, save: bool = True):
@@ -772,8 +795,12 @@ class ImageGenerator:
             labels=labels,
             target_dir=self.save_path,
             fname=label,
-            resize=True,
-            debug=False,
+            resize=self.random_resize,
+            resize_scale=self.resize_scale,
+            bright=self.bright,
+            perspective=self.perspective,
+            mode=self.mode,
+            debug=self.debug,
         )
 
     def yellow_short(self, region_label: int, char_label: int, save: bool = True):
@@ -874,8 +901,12 @@ class ImageGenerator:
             labels=labels,
             target_dir=self.save_path,
             fname=label,
-            resize=True,
-            debug=False,
+            resize=self.random_resize,
+            resize_scale=self.resize_scale,
+            bright=self.bright,
+            perspective=self.perspective,
+            mode=self.mode,
+            debug=self.debug,
         )
 
     def electronic_long(self, char_label: int, save: bool = True):
@@ -979,9 +1010,13 @@ class ImageGenerator:
             img=plate,
             labels=labels,
             target_dir=self.save_path,
-            fname=f"{label}X",
-            resize=True,
-            debug=False,
+            fname=label,
+            resize=self.random_resize,
+            resize_scale=self.resize_scale,
+            bright=self.bright,
+            perspective=self.perspective,
+            mode=self.mode,
+            debug=self.debug,
         )
 
     def white_long_2digits(self, char_label: int, save: bool = True):
@@ -1058,9 +1093,13 @@ class ImageGenerator:
             img=plate,
             labels=labels,
             target_dir=self.save_path,
-            fname=f"{label}X",
-            resize=True,
-            debug=False,
+            fname=label,
+            resize=self.random_resize,
+            resize_scale=self.resize_scale,
+            bright=self.bright,
+            perspective=self.perspective,
+            mode=self.mode,
+            debug=self.debug,
         )
 
     def white_long_3digits(self, char_label: int, save: bool = True):
@@ -1145,8 +1184,12 @@ class ImageGenerator:
             labels=labels,
             target_dir=self.save_path,
             fname=label,
-            resize=True,
-            debug=False,
+            resize=self.random_resize,
+            resize_scale=self.resize_scale,
+            bright=self.bright,
+            perspective=self.perspective,
+            mode=self.mode,
+            debug=self.debug,
         )
 
     def white_short_2digits(self, char_label: int, save: bool = True):
@@ -1223,9 +1266,13 @@ class ImageGenerator:
             img=plate,
             labels=labels,
             target_dir=self.save_path,
-            fname=f"{label}X",
-            resize=True,
-            debug=False,
+            fname=label,
+            resize=self.random_resize,
+            resize_scale=self.resize_scale,
+            bright=self.bright,
+            perspective=self.perspective,
+            mode=self.mode,
+            debug=self.debug,
         )
 
 
@@ -1240,7 +1287,15 @@ if __name__ == "__main__":
 
     img_dir = args.img_dir
 
-    A = ImageGenerator(img_dir)
+    A = ImageGenerator(
+        save_path=img_dir,
+        resize_opt=True,
+        resize_scale=(1.0, 3.0),
+        bright=True,
+        perspective=True,
+        mode="auto",
+        debug=True,
+    )
 
     if not os.path.isdir(f"{img_dir}"):
         os.makedirs(f"{img_dir}/images/train", exist_ok=True)
