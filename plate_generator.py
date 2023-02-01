@@ -195,7 +195,9 @@ def label_voc2yolo(label_voc: np.ndarray, h: int, w: int) -> np.ndarray:
     return label_yolo
 
 
-def draw_bbox_on_img(img: np.ndarray, label: np.ndarray, is_voc: bool = False) -> np.ndarray:
+def draw_bbox_on_img(
+    img: np.ndarray, label: np.ndarray, is_voc: bool = False
+) -> np.ndarray:
     if not is_voc:
         label = label_yolo2voc(label, *(img.shape[:2]))
 
@@ -219,7 +221,9 @@ def save_img_label(
     debug: bool = True,
 ):
     if resize:
-        plate, labels = random_resize(img, labels, scale_min=resize_scale[0], scale_max=resize_scale[1])
+        plate, labels = random_resize(
+            img, labels, scale_min=resize_scale[0], scale_max=resize_scale[1]
+        )
 
     if debug:
         img = draw_bbox_on_img(img=img, label=labels)
