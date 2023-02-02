@@ -7,17 +7,17 @@ from plate_generator import ImageGenerator
 from class_labels import class_dict_reversed
 
 if "Windows" in platform.platform():
-    save_path = "./addons"
+    save_path = "./addons_v1.1"
 elif "Linux" in platform.platform():
-    save_path = "/data_yper/addons"
+    save_path = "/data_yper/addons_v1.1"
 else:
-    save_path = "./addons"
+    save_path = "./addons_v1.1"
 
 generator = ImageGenerator(
     save_path=save_path,
     resize_opt=True,
     resize_scale=(1.0, 3.0),
-    bright=False,
+    bright=True,
     perspective=True,
     mode="auto",
     remove_bg=False,
