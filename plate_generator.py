@@ -406,17 +406,19 @@ def save_img_label(
     bright: bool = True,
     perspective: bool = True,
     mode: str = "auto",
+    remove_bg: bool = False,
     debug: bool = False,
 ):
-    if perspective:
-        img, labels = random_perspective(img, labels, mode=mode)
-
-    # img = remove_white_bg(img)
-
     if resize:
         img, labels = random_resize(
             img, labels, scale_min=resize_scale[0], scale_max=resize_scale[1]
         )
+
+    if perspective:
+        img, labels = random_perspective(img, labels, mode=mode)
+
+    if remove_bg:
+        img = remove_white_bg(img)
 
     if bright:
         img = random_bright(img)
@@ -437,6 +439,7 @@ class ImageGenerator:
         bright: Optional[bool] = True,
         perspective: Optional[bool] = True,
         mode: Optional[str] = "auto",
+        remove_bg: Optional[bool] = False,
         debug: Optional[bool] = False,
     ):
         self.random_resize = resize_opt
@@ -444,6 +447,7 @@ class ImageGenerator:
         self.bright = bright
         self.perspective = perspective
         self.mode = mode
+        self.remove_bg = remove_bg
         self.debug = debug
         self.save_path = save_path
 
@@ -683,7 +687,7 @@ class ImageGenerator:
         plate[row : row + w, col : col + h, :] = number2_g[rand_int]
         bboxes.append(make_bboxes(plate, number2_g[rand_int], rand_int, row, col))
         col += 64
-        # plate = random_bright(plate)
+
         labels = convert_bbox_to_label(bboxes)
 
         save_img_label(
@@ -696,6 +700,7 @@ class ImageGenerator:
             bright=self.bright,
             perspective=self.perspective,
             mode=self.mode,
+            remove_bg=self.remove_bg,
             debug=self.debug,
         )
 
@@ -787,7 +792,7 @@ class ImageGenerator:
         plate[row : row + w, col : col + h, :] = number_y[rand_int]
         bboxes.append(make_bboxes(plate, number_y[rand_int], rand_int, row, col))
         col += 56
-        # plate = random_bright(plate)
+
         labels = convert_bbox_to_label(bboxes)
 
         save_img_label(
@@ -800,6 +805,7 @@ class ImageGenerator:
             bright=self.bright,
             perspective=self.perspective,
             mode=self.mode,
+            remove_bg=self.remove_bg,
             debug=self.debug,
         )
 
@@ -893,7 +899,7 @@ class ImageGenerator:
         plate[row : row + w, col : col + h, :] = number2_y[rand_int]
         bboxes.append(make_bboxes(plate, number2_y[rand_int], rand_int, row, col))
         col += 64
-        # plate = random_bright(plate)
+
         labels = convert_bbox_to_label(bboxes)
 
         save_img_label(
@@ -906,6 +912,7 @@ class ImageGenerator:
             bright=self.bright,
             perspective=self.perspective,
             mode=self.mode,
+            remove_bg=self.remove_bg,
             debug=self.debug,
         )
 
@@ -1003,7 +1010,6 @@ class ImageGenerator:
         bboxes.append(make_bboxes(plate, number_tr[rand_int], rand_int, row, col))
         col += 56
 
-        # plate = random_bright(plate)
         labels = convert_bbox_to_label(bboxes)
 
         save_img_label(
@@ -1016,6 +1022,7 @@ class ImageGenerator:
             bright=self.bright,
             perspective=self.perspective,
             mode=self.mode,
+            remove_bg=self.remove_bg,
             debug=self.debug,
         )
 
@@ -1086,7 +1093,6 @@ class ImageGenerator:
         bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
         col += 56
 
-        # plate = random_bright(plate)
         labels = convert_bbox_to_label(bboxes)
 
         save_img_label(
@@ -1099,6 +1105,7 @@ class ImageGenerator:
             bright=self.bright,
             perspective=self.perspective,
             mode=self.mode,
+            remove_bg=self.remove_bg,
             debug=self.debug,
         )
 
@@ -1176,7 +1183,6 @@ class ImageGenerator:
         bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
         col += 56
 
-        # plate = random_bright(plate)
         labels = convert_bbox_to_label(bboxes)
 
         save_img_label(
@@ -1189,6 +1195,7 @@ class ImageGenerator:
             bright=self.bright,
             perspective=self.perspective,
             mode=self.mode,
+            remove_bg=self.remove_bg,
             debug=self.debug,
         )
 
@@ -1259,7 +1266,6 @@ class ImageGenerator:
         bboxes.append(make_bboxes(plate, number[rand_int], rand_int, row, col))
         col += 45
 
-        # plate = random_bright(plate)
         labels = convert_bbox_to_label(bboxes)
 
         save_img_label(
@@ -1272,6 +1278,7 @@ class ImageGenerator:
             bright=self.bright,
             perspective=self.perspective,
             mode=self.mode,
+            remove_bg=self.remove_bg,
             debug=self.debug,
         )
 
@@ -1294,6 +1301,7 @@ if __name__ == "__main__":
         bright=True,
         perspective=True,
         mode="auto",
+        remove_bg=False,
         debug=True,
     )
 
