@@ -604,7 +604,7 @@ class ImageGenerator:
         char_g = [cv2.resize(char1, (64, 62)) for char1 in self.char1_g]
 
         plate = cv2.resize(self.plate3, (336, 170))
-        label = "Z"
+        label = "GSR"
         # row -> y , col -> x
         row, col = 8, 76  # row + 83, col + 56
         bboxes = []
@@ -710,7 +710,7 @@ class ImageGenerator:
         char_y = [cv2.resize(char1, (60, 83)) for char1 in self.char1_y]
 
         plate = cv2.resize(self.plate2, (520 + 56, 110))
-        label = "Z"
+        label = "YLR"
         # row -> y , col -> x
         row, col = 13, 35  # row + 83, col + 56
         bboxes = []
@@ -816,7 +816,7 @@ class ImageGenerator:
         char_y = [cv2.resize(char1, (64, 62)) for char1 in self.char1_y]
 
         plate = cv2.resize(self.plate2, (336, 170))
-        label = "Z"
+        label = "YSR"
         # row -> y , col -> x
         row, col = 8, 76  # row + 83, col + 56
         bboxes = []
@@ -922,7 +922,7 @@ class ImageGenerator:
         bboxes = []
 
         plate = cv2.resize(self.plate_elec, (590, 160))
-        label = "Z"
+        label = "EL"
         # row -> y , col -> x
         row, col = 28, 80  # row + 83, col + 56
 
@@ -1032,7 +1032,7 @@ class ImageGenerator:
 
         plate = cv2.resize(self.new_plate1, (520, 110))
         bboxes = []
-        label = "Z"
+        label = "WL2"
         # row -> y , col -> x
         row, col = 13, 35  # row + 83, col + 56
 
@@ -1115,7 +1115,7 @@ class ImageGenerator:
 
         plate = cv2.resize(self.plate, (520 + 56, 110))
         bboxes = []
-        label = "Z"
+        label = "WL3"
         # row -> y , col -> x
         row, col = 13, 35  # row + 83, col + 56
 
@@ -1205,7 +1205,7 @@ class ImageGenerator:
 
         plate = cv2.resize(self.plate, (355, 155))
         bboxes = []
-        label = "Z"
+        label = "WS2"
         # row -> y , col -> x
         row, col = 46, 10  # row + 83, col + 56
 
@@ -1302,7 +1302,7 @@ if __name__ == "__main__":
         perspective=True,
         mode="auto",
         remove_bg=False,
-        debug=True,
+        debug=False,
     )
 
     if not os.path.isdir(f"{img_dir}"):
