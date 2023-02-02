@@ -1,12 +1,9 @@
-import os
 import random
 from datetime import datetime
-import argparse
 from typing import List, Union, Tuple, Optional
 import cv2
 import numpy as np
 from PIL import Image, ImageDraw
-from class_labels import class_dict
 
 
 def remove_white_bg(img: np.ndarray) -> np.ndarray:
