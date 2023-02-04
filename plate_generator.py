@@ -3,6 +3,8 @@ import random
 import argparse
 from typing import Tuple, Optional
 import cv2
+import numpy as np
+
 from class_labels import class_dict
 from utils import (
     blend_argb_with_rgb,
@@ -23,6 +25,7 @@ class ImageGenerator:
         mode: Optional[str] = "auto",
         remove_bg: Optional[bool] = False,
         debug: Optional[bool] = False,
+        no_number: Optional[bool] = False,
     ):
         self.random_resize = resize_opt
         self.resize_scale = resize_scale
@@ -32,6 +35,7 @@ class ImageGenerator:
         self.remove_bg = remove_bg
         self.debug = debug
         self.save_path = save_path
+        self.no_number = no_number
 
         # Plate
         self.plate = cv2.imread("plate.jpg")
@@ -75,10 +79,21 @@ class ImageGenerator:
         self.number_y = list()
         self.number_list_y = list()
 
+        # color code: 0xFEF200
+
         for file in file_list:
             img_path = os.path.join(file_path, file)
             img = cv2.imread(img_path)
-            self.number_y.append(img)
+            null_img = np.zeros_like(img, dtype=np.uint8)
+            null_img[:, :, 0] = 0x00  # B
+            null_img[:, :, 1] = 0xF2  # G
+            null_img[:, :, 2] = 0xFE  # R
+
+            if self.no_number:
+                self.number_y.append(null_img)
+            else:
+                self.number_y.append(img)
+
             self.number_list_y.append(file[0:-4])
 
         # loading Char
@@ -124,10 +139,21 @@ class ImageGenerator:
         self.number_g = list()
         self.number_list_g = list()
 
+        # color code: 0x00A82F
+
         for file in file_list:
             img_path = os.path.join(file_path, file)
             img = cv2.imread(img_path)
-            self.number_g.append(img)
+            null_img = np.zeros_like(img, dtype=np.uint8)
+            null_img[:, :, 0] = 0x2F  # B
+            null_img[:, :, 1] = 0xA8  # G
+            null_img[:, :, 2] = 0x00  # R
+
+            if self.no_number:
+                self.number_g.append(null_img)
+            else:
+                self.number_g.append(img)
+
             self.number_list_g.append(file[0:-4])
 
         # loading Char
@@ -272,6 +298,9 @@ class ImageGenerator:
 
         labels = convert_bbox_to_label(bboxes)
 
+        if self.no_number:
+            labels = labels[[0, 3], :]
+
         save_img_label(
             img=plate,
             labels=labels,
@@ -376,6 +405,9 @@ class ImageGenerator:
         col += 56
 
         labels = convert_bbox_to_label(bboxes)
+
+        if self.no_number:
+            labels = labels[[0, 3], :]
 
         save_img_label(
             img=plate,
@@ -483,6 +515,9 @@ class ImageGenerator:
         col += 64
 
         labels = convert_bbox_to_label(bboxes)
+
+        if self.no_number:
+            labels = labels[[0, 3], :]
 
         save_img_label(
             img=plate,
@@ -885,6 +920,7 @@ if __name__ == "__main__":
         mode="auto",
         remove_bg=False,
         debug=False,
+        no_number=False,
     )
 
     if not os.path.isdir(f"{img_dir}"):
