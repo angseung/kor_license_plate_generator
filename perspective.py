@@ -21,18 +21,24 @@ if __name__ == "__main__":
     H, W = img.shape[:2]
 
     plt.subplot(221)
-    result1, labels1, mtrx = random_perspective(img, labels, mode="left", return_mat=True, pads=(H // 4, H // 4))
+    result1, labels1, mtrx = random_perspective(
+        img, labels, mode="left", return_mat=True, pads=(H // 4, H // 4)
+    )
     result1 = draw_bbox_on_img(result1, labels1, is_voc=False)
     plt.imshow(result1)
     # a_1, a_2, a_3 = get_angle_from_warp(mtrx)
 
     plt.subplot(222)
-    result2, labels2, mtrx = random_perspective(img, labels, mode="right", return_mat=True, pads=(H // 4, H // 4))
+    result2, labels2, mtrx = random_perspective(
+        img, labels, mode="right", return_mat=True, pads=(H // 4, H // 4)
+    )
     result2 = draw_bbox_on_img(result2, labels2, is_voc=False)
     plt.imshow(result2)
 
     plt.subplot(223)
-    result3, labels3, mtrx = random_perspective(img, labels, mode="top", return_mat=True, pads=(W // 8, W // 8))
+    result3, labels3, mtrx = random_perspective(
+        img, labels, mode="top", return_mat=True, pads=(W // 8, W // 8)
+    )
     # result3, labels3 = random_perspective(result3, labels3, mode="left")
     result3 = draw_bbox_on_img(result3, labels3, is_voc=False)
     a_1, a_2, a_3 = get_angle_from_warp(mtrx)
@@ -40,7 +46,9 @@ if __name__ == "__main__":
     a_1, a_2, a_3 = get_angle_from_warp(mtrx)
 
     plt.subplot(224)
-    result4, labels4, mtrx = random_perspective(img, labels, mode="bottom", return_mat=True, pads=(W // 8, W // 8))
+    result4, labels4, mtrx = random_perspective(
+        img, labels, mode="bottom", return_mat=True, pads=(W // 8, W // 8)
+    )
     # result4, labels4 = random_perspective(result4, labels4, mode="right")
     result4 = draw_bbox_on_img(result4, labels4, is_voc=False)
     plt.imshow(result4)
