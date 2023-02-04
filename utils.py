@@ -1,3 +1,4 @@
+import math
 import random
 from datetime import datetime
 from typing import List, Union, Tuple, Optional
@@ -40,8 +41,12 @@ def random_perspective(
     labels: np.ndarray,
     mode: str = "auto",
     max_pad_order: Tuple[int, int] = (4, 8),
-) -> Tuple[np.ndarray, np.ndarray]:
+    return_mat: Optional[bool] = False,
+    pads: Optional[Union[None, Tuple[int, int]]] = None,
+) -> Union[Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray]]:
     random.seed(datetime.now().timestamp())
+    if pads is not None:
+        assert len(pads) == 2
 
     H, W = img.shape[:2]
     max_pad_h = H // max_pad_order[0]
@@ -56,6 +61,9 @@ def random_perspective(
 
     if mode in ["top", "bottom"]:
         pad_l, pad_r = (random.randint(1, max_pad_w), random.randint(1, max_pad_w))
+
+        if pads is not None:
+            pad_l, pad_r = pads
 
         img_padded = np.zeros([H, W + pad_l + pad_r, 3], dtype=np.uint8)
         img_padded[:, :, :] = 255
@@ -92,6 +100,9 @@ def random_perspective(
             random.randint(1, max_pad_h),
             random.randint(1, max_pad_h),
         )
+        if pads is not None:
+            pad_top, pad_bottom = pads
+
         img_padded = np.zeros([H + pad_top + pad_bottom, W, 3], dtype=np.uint8)
         img_padded[:, :, :] = 255
         img_padded[pad_top:-pad_bottom, :, :] = img
@@ -152,7 +163,11 @@ def random_perspective(
 
     labels = label_voc2yolo(labels, *result.shape[:2])
 
-    return result, labels
+    if return_mat:
+        return result, labels, mtrx
+
+    else:
+        return result, labels
 
 
 def parse_label(fname: str) -> np.ndarray:
@@ -425,3 +440,23 @@ def save_img_label(
 
     cv2.imwrite(target_dir + "/images/train/" + fname + ".png", img)
     write_label(target_dir + "/labels/train", fname, labels)
+
+
+def get_angle_from_warp(rqmtx: np.ndarray) -> Tuple[float, float, float]:
+    phi = math.atan2(rqmtx[2][1], rqmtx[2][2])
+    psi = math.atan2(rqmtx[1][0], rqmtx[0][0])
+
+    if math.cos(psi) == 0:
+        thetaa = math.atan2(-rqmtx[2][0], (rqmtx[1][0] / math.sin(psi)))
+    else:
+        thetaa = math.atan2(-rqmtx[2][0], (rqmtx[0][0] / math.cos(psi)))
+
+    s = math.atan2(rqmtx[0][0], -math.sqrt(rqmtx[2][1] * rqmtx[2][1] + rqmtx[2][2] * rqmtx[2][2]))
+
+    pi = math.pi
+
+    phid = phi * (180 / pi)
+    thetaad = thetaa * (180 / pi)
+    psid = psi * (180 / pi)
+
+    return phid, thetaad, psid
