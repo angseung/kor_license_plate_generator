@@ -451,7 +451,9 @@ def get_angle_from_warp(rqmtx: np.ndarray) -> Tuple[float, float, float]:
     else:
         thetaa = math.atan2(-rqmtx[2][0], (rqmtx[0][0] / math.cos(psi)))
 
-    s = math.atan2(rqmtx[0][0], -math.sqrt(rqmtx[2][1] * rqmtx[2][1] + rqmtx[2][2] * rqmtx[2][2]))
+    s = math.atan2(
+        rqmtx[0][0], -math.sqrt(rqmtx[2][1] * rqmtx[2][1] + rqmtx[2][2] * rqmtx[2][2])
+    )
 
     pi = math.pi
 
