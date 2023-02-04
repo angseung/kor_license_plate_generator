@@ -4,3 +4,4 @@ opencv-python
 openpyxl
 xlrd
 pillow
+matplotlib
