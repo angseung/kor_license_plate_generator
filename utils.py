@@ -393,9 +393,9 @@ def label_voc2yolo(label_voc: np.ndarray, h: int, w: int) -> np.ndarray:
 
 
 def draw_bbox_on_img(
-    img: np.ndarray, label: np.ndarray, is_voc: bool = False
+    img: np.ndarray, label: np.ndarray
 ) -> np.ndarray:
-    if not is_voc:
+    if label.dtype != np.uint8:
         label = label_yolo2voc(label, *(img.shape[:2]))
 
     img = Image.fromarray(img)
@@ -417,10 +417,14 @@ def save_img_label(
     resize_scale: Tuple[float, float] = (1.0, 3.0),
     bright: bool = True,
     perspective: bool = True,
+    rotate: bool = False,
+    angle: Union[int, str] = "auto",
     mode: str = "auto",
     remove_bg: bool = False,
     debug: bool = False,
 ):
+    h, w = img.shape[:2]
+
     if resize:
         img, labels = random_resize(
             img, labels, scale_min=resize_scale[0], scale_max=resize_scale[1]
@@ -431,6 +435,14 @@ def save_img_label(
 
     if remove_bg:
         img = remove_white_bg(img)
+
+    if rotate:
+        if angle == "auto":
+            random.seed(datetime.now().timestamp())
+            angle = random.randint(-10, 10)
+
+        img = rotate_img(img, angle=angle)
+        labels = rotate_bboxes(labels, height=h, width=w, angle=angle)
 
     if bright:
         img = random_bright(img)
@@ -462,3 +474,56 @@ def get_angle_from_warp(rqmtx: np.ndarray) -> Tuple[float, float, float]:
     psid = psi * (180 / pi)
 
     return phid, thetaad, psid
+
+
+def rotate_point(point_x: Union[int, float], point_y: Union[int, float], angle: int) -> Tuple[float, float]:
+    angle = math.radians(angle)
+    cos_coef = math.cos(angle)
+    sin_coef = math.sin(angle)
+
+    point_x_re = cos_coef * point_x - sin_coef * point_y
+    point_y_re = sin_coef * point_x + cos_coef * point_y
+
+    return point_x_re, point_y_re
+
+
+def rotate_bboxes(bboxes: Union[np.ndarray, str], width: int, height: int, angle: int) -> np.ndarray:
+    if isinstance(bboxes, str):
+        bboxes = parse_label(bboxes)
+
+    labels_voc = label_yolo2voc(bboxes, h=height, w=width)
+
+    for i, label in enumerate(labels_voc):
+        xtl, ytl = label[1], label[2]
+        xbr, ybr = label[3], label[4]
+        bbox_w = xbr - xtl
+        bbox_h = ybr - ytl
+        xtr, ytr = label[1] + bbox_w, label[2]
+        xbl, ybl = label[1], label[2] + bbox_h
+
+        xtl, ytl = rotate_point(xtl, ytl, angle)
+        xtr, ytr = rotate_point(xtr, ytr, angle)
+        xbl, ybl = rotate_point(xbl, ybl, angle)
+        xbr, ybr = rotate_point(xbr, ybr, angle)
+
+        new_xtl = (xtl + xbl) // 2
+        new_ytl = (ytl + ytr) // 2
+        new_xbr = (xtr + xbr) // 2
+        new_ybr = (ybl + ybr) // 2
+
+        # reconstruct tl and br
+        labels_voc[i, [1, 2]] = rotate_point(new_xtl, new_ytl, angle)
+        labels_voc[i, [3, 4]] = rotate_point(new_xbr, new_ybr, angle)
+
+    bboxes = label_voc2yolo(labels_voc, h=height, w=width)
+
+    return bboxes
+
+
+def rotate_img(img: np.ndarray, angle) -> np.ndarray:
+    h, w = img.shape[:2]
+    (cX, cY) = (w // 2, h // 2)
+    mat = cv2.getRotationMatrix2D((cX, cY), angle, 1.0)
+    rotated_img = cv2.warpAffine(img, mat, (w, h))
+
+    return rotated_img

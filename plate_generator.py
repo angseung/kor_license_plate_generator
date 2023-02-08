@@ -1,7 +1,7 @@
 import os
 import random
 import argparse
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Union
 import cv2
 import numpy as np
 
@@ -23,6 +23,8 @@ class ImageGenerator:
         bright: Optional[bool] = True,
         perspective: Optional[bool] = True,
         mode: Optional[str] = "auto",
+        rotate: Optional[bool] = False,
+        angle: Optional[Union[str, int]] = "auto",
         remove_bg: Optional[bool] = False,
         debug: Optional[bool] = False,
         no_number: Optional[bool] = False,
@@ -36,6 +38,8 @@ class ImageGenerator:
         self.debug = debug
         self.save_path = save_path
         self.no_number = no_number
+        self.rotate = rotate
+        self.angle = angle
 
         # Plate
         self.plate = cv2.imread("plate.jpg")
@@ -893,6 +897,8 @@ class ImageGenerator:
             resize=self.random_resize,
             resize_scale=self.resize_scale,
             bright=self.bright,
+            rotate=self.rotate,
+            angle=self.angle,
             perspective=self.perspective,
             mode=self.mode,
             remove_bg=self.remove_bg,
@@ -916,10 +922,12 @@ if __name__ == "__main__":
         resize_opt=True,
         resize_scale=(1.0, 3.0),
         bright=True,
-        perspective=True,
+        perspective=False,
         mode="auto",
         remove_bg=False,
-        debug=False,
+        rotate=True,
+        angle=10,
+        debug=True,
         no_number=False,
     )
 
