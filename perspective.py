@@ -8,7 +8,7 @@ from utils import (
     draw_bbox_on_img,
     blend_argb_with_rgb,
     random_perspective,
-    remove_white_bg,
+    remove_bg_from_img,
     get_angle_from_warp,
 )
 
@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     tmp = np.zeros((3000, 3000, 3), dtype=np.uint8)
     tmp[:, :, :] = 0
-    dst = remove_white_bg(result4)
+    dst = remove_bg_from_img(result4)
     img_tr = blend_argb_with_rgb(fg=dst, bg=tmp, row=0, col=1)
 
     plt.imshow(img_tr)

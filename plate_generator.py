@@ -9,7 +9,7 @@ from class_labels import class_dict
 from utils import (
     blend_argb_with_rgb,
     make_bboxes,
-    save_img_label,
+    augment_img_label_and_save,
     convert_bbox_to_label,
 )
 
@@ -305,7 +305,7 @@ class ImageGenerator:
         if self.no_number:
             labels = labels[[0, 3], :]
 
-        save_img_label(
+        augment_img_label_and_save(
             img=plate,
             labels=labels,
             target_dir=self.save_path,
@@ -316,6 +316,7 @@ class ImageGenerator:
             perspective=self.perspective,
             mode=self.mode,
             remove_bg=self.remove_bg,
+            bg_color="green",
             debug=self.debug,
         )
 
@@ -413,7 +414,7 @@ class ImageGenerator:
         if self.no_number:
             labels = labels[[0, 3], :]
 
-        save_img_label(
+        augment_img_label_and_save(
             img=plate,
             labels=labels,
             target_dir=self.save_path,
@@ -426,6 +427,7 @@ class ImageGenerator:
             perspective=self.perspective,
             mode=self.mode,
             remove_bg=self.remove_bg,
+            bg_color="yellow",
             debug=self.debug,
         )
 
@@ -525,7 +527,7 @@ class ImageGenerator:
         if self.no_number:
             labels = labels[[0, 3], :]
 
-        save_img_label(
+        augment_img_label_and_save(
             img=plate,
             labels=labels,
             target_dir=self.save_path,
@@ -538,6 +540,7 @@ class ImageGenerator:
             perspective=self.perspective,
             mode=self.mode,
             remove_bg=self.remove_bg,
+            bg_color="yellow",
             debug=self.debug,
         )
 
@@ -637,7 +640,7 @@ class ImageGenerator:
 
         labels = convert_bbox_to_label(bboxes)
 
-        save_img_label(
+        augment_img_label_and_save(
             img=plate,
             labels=labels,
             target_dir=self.save_path,
@@ -650,6 +653,7 @@ class ImageGenerator:
             perspective=self.perspective,
             mode=self.mode,
             remove_bg=self.remove_bg,
+            bg_color="blue",
             debug=self.debug,
         )
 
@@ -722,7 +726,7 @@ class ImageGenerator:
 
         labels = convert_bbox_to_label(bboxes)
 
-        save_img_label(
+        augment_img_label_and_save(
             img=plate,
             labels=labels,
             target_dir=self.save_path,
@@ -735,6 +739,7 @@ class ImageGenerator:
             perspective=self.perspective,
             mode=self.mode,
             remove_bg=self.remove_bg,
+            bg_color="white",
             debug=self.debug,
         )
 
@@ -814,7 +819,7 @@ class ImageGenerator:
 
         labels = convert_bbox_to_label(bboxes)
 
-        save_img_label(
+        augment_img_label_and_save(
             img=plate,
             labels=labels,
             target_dir=self.save_path,
@@ -827,6 +832,7 @@ class ImageGenerator:
             perspective=self.perspective,
             mode=self.mode,
             remove_bg=self.remove_bg,
+            bg_color="white",
             debug=self.debug,
         )
 
@@ -899,7 +905,7 @@ class ImageGenerator:
 
         labels = convert_bbox_to_label(bboxes)
 
-        save_img_label(
+        augment_img_label_and_save(
             img=plate,
             labels=labels,
             target_dir=self.save_path,
@@ -912,6 +918,7 @@ class ImageGenerator:
             perspective=self.perspective,
             mode=self.mode,
             remove_bg=self.remove_bg,
+            bg_color="white",
             debug=self.debug,
         )
 
@@ -931,13 +938,13 @@ if __name__ == "__main__":
         save_path=img_dir,
         resize_opt=False,
         resize_scale=(1.0, 3.0),
-        bright=True,
+        bright=False,
         perspective=True,
         mode="auto",
-        remove_bg=False,
+        remove_bg=True,
         rotate=True,
         angle="auto",
-        debug=True,
+        debug=False,
         no_number=False,
     )
 

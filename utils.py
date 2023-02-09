@@ -7,12 +7,15 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 
-def remove_white_bg(img: np.ndarray) -> np.ndarray:
+def remove_bg_from_img(img: np.ndarray, bg_color: str = "yellow") -> np.ndarray:
     # Convert image to image gray
     tmp = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
     # Applying thresholding technique
-    _, alpha = cv2.threshold(tmp, 250, 255, cv2.THRESH_BINARY_INV)
+    if bg_color in ["white", "green"]:
+        _, alpha = cv2.threshold(tmp, 100, 255, cv2.THRESH_BINARY)  # TODO: check
+    elif bg_color in ["yellow", "blue"]:
+        _, alpha = cv2.threshold(tmp, 250, 255, cv2.THRESH_BINARY_INV)  # done
 
     # Using cv2.split() to split channels
     # of coloured image
@@ -22,8 +25,6 @@ def remove_white_bg(img: np.ndarray) -> np.ndarray:
     # Channels and alpha
     rgba = [b, g, r, alpha]
 
-    # Using cv2.merge() to merge rgba
-    # into a coloured/multi-channeled image
     return cv2.merge(rgba, 4)
 
 
@@ -40,6 +41,7 @@ def random_perspective(
     img: np.ndarray,
     labels: np.ndarray,
     mode: str = "auto",
+    bg_color: str = "yellow",
     max_pad_order: Tuple[int, int] = (4, 8),
     return_mat: Optional[bool] = False,
     pads: Optional[Union[None, Tuple[int, int]]] = None,
@@ -133,8 +135,18 @@ def random_perspective(
                 [[0, pad_top], [W, pad_top], [0, H + pad_top], [W, H + pad_top]]
             )
 
+    if bg_color in ["yellow", "blue"]:
+        color = (255, 255, 255)
+    elif bg_color in ["white", "green"]:
+        color = (0, 0, 255)
+    else:
+        raise ValueError
+
     mtrx = cv2.getPerspectiveTransform(point_before, point_after)
-    result = cv2.warpPerspective(img_padded, mtrx, img_padded.shape[:2][::-1])
+    result = cv2.warpPerspective(img_padded, mtrx, img_padded.shape[:2][::-1],
+                                 borderMode=cv2.BORDER_CONSTANT,
+                                 borderValue=color,
+                                 )
 
     for i, label in enumerate(labels):
         xtl, ytl, xbr, ybr = label.tolist()[1:]
@@ -406,7 +418,7 @@ def draw_bbox_on_img(img: np.ndarray, label: np.ndarray) -> np.ndarray:
     return np.asarray(img)
 
 
-def save_img_label(
+def augment_img_label_and_save(
     img: np.ndarray,
     labels: np.ndarray,
     target_dir: str,
@@ -419,8 +431,11 @@ def save_img_label(
     angle: Union[int, str] = "auto",
     mode: str = "auto",
     remove_bg: bool = False,
+    bg_color: str = "yellow",
     debug: bool = False,
 ):
+    if bright:
+        img = random_bright(img)
 
     if resize:
         img, labels = random_resize(
@@ -428,23 +443,20 @@ def save_img_label(
         )
 
     if perspective:
-        img, labels = random_perspective(img, labels, mode=mode)
-
-    if remove_bg:
-        img = remove_white_bg(img)
+        img, labels = random_perspective(img, labels, mode=mode, bg_color=bg_color)
 
     if rotate:
         if angle == "auto":
             random.seed(datetime.now().timestamp())
             angle = random.randint(-10, 10)
 
-        img, labels = rotate_img_and_bboxes(img, labels, angle=angle)
-
-    if bright:
-        img = random_bright(img)
+        img, labels = rotate_img_and_bboxes(img, labels, angle=angle, bg_color=bg_color)
 
     if debug:
         img = draw_bbox_on_img(img=img, label=labels)
+
+    if remove_bg:
+        img = remove_bg_from_img(img, bg_color=bg_color)
 
     cv2.imwrite(target_dir + "/images/train/" + fname + ".png", img)
     write_label(target_dir + "/labels/train", fname, labels)
@@ -616,7 +628,7 @@ def get_enclosing_box(corners: np.ndarray) -> np.ndarray:
 
 
 def rotate_img_and_bboxes(
-    img: np.ndarray, bboxes: Union[np.ndarray, str], angle: int
+    img: np.ndarray, bboxes: Union[np.ndarray, str], angle: int, bg_color: str = "yellow",
 ) -> Tuple[np.ndarray, np.ndarray]:
     height, width = img.shape[:2]
     (cX, cY) = (width // 2, height // 2)
@@ -634,12 +646,19 @@ def rotate_img_and_bboxes(
     mat[0, 2] += (bound_w / 2) - cX
     mat[1, 2] += (bound_h / 2) - cY
 
+    if bg_color in ["yellow", "blue"]:
+        color = (255, 255, 255)
+    elif bg_color in ["white", "green"]:
+        color = (0, 0, 255)
+    else:
+        raise ValueError
+
     rotated_img = cv2.warpAffine(
         img,
         mat,
         (bound_w, bound_h),
         borderMode=cv2.BORDER_CONSTANT,
-        borderValue=(255, 255, 255),
+        borderValue=color,
     )
 
     if isinstance(bboxes, str):
