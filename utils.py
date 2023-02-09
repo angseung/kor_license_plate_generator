@@ -423,7 +423,6 @@ def save_img_label(
     remove_bg: bool = False,
     debug: bool = False,
 ):
-    h, w = img.shape[:2]
 
     if resize:
         img, labels = random_resize(
@@ -441,8 +440,7 @@ def save_img_label(
             random.seed(datetime.now().timestamp())
             angle = random.randint(-10, 10)
 
-        img = rotate_img(img, angle=angle)
-        labels = rotate_bboxes(labels, height=h, width=w, angle=angle)
+        img, labels = rotate_bboxes(img, labels, angle=angle)
 
     if bright:
         img = random_bright(img)
@@ -487,43 +485,161 @@ def rotate_point(point_x: Union[int, float], point_y: Union[int, float], angle: 
     return point_x_re, point_y_re
 
 
-def rotate_bboxes(bboxes: Union[np.ndarray, str], width: int, height: int, angle: int) -> np.ndarray:
+def get_corners(bboxes: np.ndarray) -> np.ndarray:
+    """Get corners of bounding boxes
+
+    Parameters
+    ----------
+
+    bboxes: numpy.ndarray
+        Numpy array containing bounding boxes of shape `N X 4` where N is the
+        number of bounding boxes and the bounding boxes are represented in the
+        format `x1 y1 x2 y2`
+
+    returns
+    -------
+
+    numpy.ndarray
+        Numpy array of shape `N x 8` containing N bounding boxes each described by their
+        corner co-ordinates `x1 y1 x2 y2 x3 y3 x4 y4`
+
+    """
+    width = (bboxes[:, 2] - bboxes[:, 0]).reshape(-1, 1)
+    height = (bboxes[:, 3] - bboxes[:, 1]).reshape(-1, 1)
+
+    x1 = bboxes[:, 0].reshape(-1, 1)
+    y1 = bboxes[:, 1].reshape(-1, 1)
+
+    x2 = x1 + width
+    y2 = y1
+
+    x3 = x1
+    y3 = y1 + height
+
+    x4 = bboxes[:, 2].reshape(-1, 1)
+    y4 = bboxes[:, 3].reshape(-1, 1)
+
+    corners = np.hstack((x1, y1, x2, y2, x3, y3, x4, y4))
+
+    return corners
+
+
+def rotate_box(corners: np.ndarray, angle: Union[float, int], cx: int, cy: int, h: int, w: int):
+    """Rotate the bounding box.
+
+
+    Parameters
+    ----------
+
+    corners : numpy.ndarray
+        Numpy array of shape `N x 8` containing N bounding boxes each described by their
+        corner co-ordinates `x1 y1 x2 y2 x3 y3 x4 y4`
+
+    angle : float
+        angle by which the image is to be rotated
+
+    cx : int
+        x coordinate of the center of image (about which the box will be rotated)
+
+    cy : int
+        y coordinate of the center of image (about which the box will be rotated)
+
+    h : int
+        height of the image
+
+    w : int
+        width of the image
+
+    Returns
+    -------
+
+    numpy.ndarray
+        Numpy array of shape `N x 8` containing N rotated bounding boxes each described by their
+        corner co-ordinates `x1 y1 x2 y2 x3 y3 x4 y4`
+    """
+
+    corners = corners.reshape(-1, 2)
+    corners = np.hstack((corners, np.ones((corners.shape[0], 1), dtype=type(corners[0][0]))))
+
+    M = cv2.getRotationMatrix2D((cx, cy), angle, 1.0)
+
+    cos = np.abs(M[0, 0])
+    sin = np.abs(M[0, 1])
+
+    nW = int((h * sin) + (w * cos))
+    nH = int((h * cos) + (w * sin))
+    # adjust the rotation matrix to take into account translation
+    M[0, 2] += (nW / 2) - cx
+    M[1, 2] += (nH / 2) - cy
+    # Prepare the vector to be transformed
+    calculated = np.dot(M, corners.T).T
+
+    calculated = calculated.reshape(-1, 8)
+
+    return calculated
+
+
+def get_enclosing_box(corners: np.ndarray) -> np.ndarray:
+    """Get an enclosing box for ratated corners of a bounding box
+
+    Parameters
+    ----------
+
+    corners : numpy.ndarray
+        Numpy array of shape `N x 8` containing N bounding boxes each described by their
+        corner co-ordinates `x1 y1 x2 y2 x3 y3 x4 y4`
+
+    Returns
+    -------
+
+    numpy.ndarray
+        Numpy array containing enclosing bounding boxes of shape `N X 4` where N is the
+        number of bounding boxes and the bounding boxes are represented in the
+        format `x1 y1 x2 y2`
+
+    """
+    x_ = corners[:, [0, 2, 4, 6]]
+    y_ = corners[:, [1, 3, 5, 7]]
+
+    xmin = np.min(x_, 1).reshape(-1, 1)
+    ymin = np.min(y_, 1).reshape(-1, 1)
+    xmax = np.max(x_, 1).reshape(-1, 1)
+    ymax = np.max(y_, 1).reshape(-1, 1)
+
+    final = np.hstack((xmin, ymin, xmax, ymax, corners[:, 8:]))
+
+    return final
+
+
+def rotate_bboxes(img: np.ndarray, bboxes: Union[np.ndarray, str], angle: int) -> Tuple[np.ndarray, np.ndarray]:
+    height, width = img.shape[:2]
+    (cX, cY) = (width // 2, height // 2)
+    mat = cv2.getRotationMatrix2D((cX, cY), angle, 1.0)
+
+    # rotation calculates the cos and sin, taking absolutes of those.
+    abs_cos = abs(mat[0, 0])
+    abs_sin = abs(mat[0, 1])
+
+    # find the new width and height bounds
+    bound_w = int(height * abs_sin + width * abs_cos)
+    bound_h = int(height * abs_cos + width * abs_sin)
+
+    # adjust the rotation matrix to take into account translation
+    mat[0, 2] += (bound_w / 2) - cX
+    mat[1, 2] += (bound_h / 2) - cY
+
+    rotated_img = cv2.warpAffine(img, mat, (bound_w, bound_h))
+
     if isinstance(bboxes, str):
         bboxes = parse_label(bboxes)
 
     labels_voc = label_yolo2voc(bboxes, h=height, w=width)
 
-    for i, label in enumerate(labels_voc):
-        xtl, ytl = label[1], label[2]
-        xbr, ybr = label[3], label[4]
-        bbox_w = xbr - xtl
-        bbox_h = ybr - ytl
-        xtr, ytr = label[1] + bbox_w, label[2]
-        xbl, ybl = label[1], label[2] + bbox_h
+    points = get_corners(labels_voc[:, 1:])
+    calculated = rotate_box(points, angle=angle, cx=cX, cy=cY, h=height, w=width)
+    calculated = get_enclosing_box(calculated)
+    labels_voc[:, 1:] = calculated
 
-        xtl, ytl = rotate_point(xtl, ytl, angle)
-        xtr, ytr = rotate_point(xtr, ytr, angle)
-        xbl, ybl = rotate_point(xbl, ybl, angle)
-        xbr, ybr = rotate_point(xbr, ybr, angle)
+    bboxes = label_voc2yolo(labels_voc, h=bound_h, w=bound_w)
 
-        new_xtl = (xtl + xbl) // 2
-        new_ytl = (ytl + ytr) // 2
-        new_xbr = (xtr + xbr) // 2
-        new_ybr = (ybl + ybr) // 2
-
-        # reconstruct tl and br
-        labels_voc[i, [1, 2]] = rotate_point(new_xtl, new_ytl, angle)
-        labels_voc[i, [3, 4]] = rotate_point(new_xbr, new_ybr, angle)
-
-    bboxes = label_voc2yolo(labels_voc, h=height, w=width)
-
-    return bboxes
-
-
-def rotate_img(img: np.ndarray, angle) -> np.ndarray:
-    h, w = img.shape[:2]
-    (cX, cY) = (w // 2, h // 2)
-    mat = cv2.getRotationMatrix2D((cX, cY), angle, 1.0)
-    rotated_img = cv2.warpAffine(img, mat, (w, h))
-
-    return rotated_img
+    return rotated_img, bboxes
