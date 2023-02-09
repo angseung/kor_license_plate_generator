@@ -22,8 +22,8 @@ generator = ImageGenerator(
     mode="auto",
     rotate=True,
     angle="auto",
-    remove_bg=False,
-    debug=True,
+    remove_bg=True,
+    debug=False,
 )
 
 if not os.path.isdir(f"{save_path}"):
