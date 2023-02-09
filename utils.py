@@ -392,9 +392,7 @@ def label_voc2yolo(label_voc: np.ndarray, h: int, w: int) -> np.ndarray:
     return label_yolo
 
 
-def draw_bbox_on_img(
-    img: np.ndarray, label: np.ndarray
-) -> np.ndarray:
+def draw_bbox_on_img(img: np.ndarray, label: np.ndarray) -> np.ndarray:
     if label.dtype != np.uint8:
         label = label_yolo2voc(label, *(img.shape[:2]))
 
@@ -440,7 +438,7 @@ def save_img_label(
             random.seed(datetime.now().timestamp())
             angle = random.randint(-10, 10)
 
-        img, labels = rotate_bboxes(img, labels, angle=angle)
+        img, labels = rotate_img_and_bboxes(img, labels, angle=angle)
 
     if bright:
         img = random_bright(img)
@@ -474,7 +472,9 @@ def get_angle_from_warp(rqmtx: np.ndarray) -> Tuple[float, float, float]:
     return phid, thetaad, psid
 
 
-def rotate_point(point_x: Union[int, float], point_y: Union[int, float], angle: int) -> Tuple[float, float]:
+def rotate_point(
+    point_x: Union[int, float], point_y: Union[int, float], angle: int
+) -> Tuple[float, float]:
     angle = math.radians(angle)
     cos_coef = math.cos(angle)
     sin_coef = math.sin(angle)
@@ -524,7 +524,9 @@ def get_corners(bboxes: np.ndarray) -> np.ndarray:
     return corners
 
 
-def rotate_box(corners: np.ndarray, angle: Union[float, int], cx: int, cy: int, h: int, w: int):
+def rotate_box(
+    corners: np.ndarray, angle: Union[float, int], cx: int, cy: int, h: int, w: int
+):
     """Rotate the bounding box.
 
 
@@ -559,7 +561,9 @@ def rotate_box(corners: np.ndarray, angle: Union[float, int], cx: int, cy: int, 
     """
 
     corners = corners.reshape(-1, 2)
-    corners = np.hstack((corners, np.ones((corners.shape[0], 1), dtype=type(corners[0][0]))))
+    corners = np.hstack(
+        (corners, np.ones((corners.shape[0], 1), dtype=type(corners[0][0])))
+    )
 
     M = cv2.getRotationMatrix2D((cx, cy), angle, 1.0)
 
@@ -611,7 +615,9 @@ def get_enclosing_box(corners: np.ndarray) -> np.ndarray:
     return final
 
 
-def rotate_bboxes(img: np.ndarray, bboxes: Union[np.ndarray, str], angle: int) -> Tuple[np.ndarray, np.ndarray]:
+def rotate_img_and_bboxes(
+    img: np.ndarray, bboxes: Union[np.ndarray, str], angle: int
+) -> Tuple[np.ndarray, np.ndarray]:
     height, width = img.shape[:2]
     (cX, cY) = (width // 2, height // 2)
     mat = cv2.getRotationMatrix2D((cX, cY), angle, 1.0)
@@ -628,7 +634,13 @@ def rotate_bboxes(img: np.ndarray, bboxes: Union[np.ndarray, str], angle: int) -
     mat[0, 2] += (bound_w / 2) - cX
     mat[1, 2] += (bound_h / 2) - cY
 
-    rotated_img = cv2.warpAffine(img, mat, (bound_w, bound_h))
+    rotated_img = cv2.warpAffine(
+        img,
+        mat,
+        (bound_w, bound_h),
+        borderMode=cv2.BORDER_CONSTANT,
+        borderValue=(255, 255, 255),
+    )
 
     if isinstance(bboxes, str):
         bboxes = parse_label(bboxes)
