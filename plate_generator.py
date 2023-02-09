@@ -936,7 +936,7 @@ if __name__ == "__main__":
 
     A = ImageGenerator(
         save_path=img_dir,
-        resize_opt=False,
+        resize_opt=True,
         resize_scale=(1.0, 3.0),
         bright=True,
         perspective=True,
@@ -944,7 +944,7 @@ if __name__ == "__main__":
         remove_bg=True,
         rotate=True,
         angle="auto",
-        debug=True,
+        debug=False,
         no_number=False,
     )
 
