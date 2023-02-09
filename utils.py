@@ -13,7 +13,7 @@ def remove_bg_from_img(img: np.ndarray, bg_color: str = "yellow") -> np.ndarray:
 
     # Applying thresholding technique
     if bg_color in ["white", "green"]:
-        _, alpha = cv2.threshold(tmp, 100, 255, cv2.THRESH_BINARY)  # TODO: check
+        alpha = cv2.bitwise_not(cv2.inRange(tmp, 25, 30))
     elif bg_color in ["yellow", "blue"]:
         _, alpha = cv2.threshold(tmp, 250, 255, cv2.THRESH_BINARY_INV)  # done
 
