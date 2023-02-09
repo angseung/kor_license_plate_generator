@@ -204,7 +204,7 @@ def parse_label(fname: str) -> np.ndarray:
 def random_bright(img: np.ndarray) -> np.ndarray:
     random.seed(datetime.now().timestamp())
 
-    if img.shape[3] == 4:
+    if img.shape[2] == 4:
         raise NotImplemented
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
