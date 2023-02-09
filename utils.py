@@ -438,17 +438,21 @@ def augment_img_label_and_save(
     debug: bool = False,
 ):
     if bright:
+        # BGR -> BGR
         img = random_bright(img)
 
     if resize:
+        # BGR -> BGR
         img, labels = random_resize(
             img, labels, scale_min=resize_scale[0], scale_max=resize_scale[1]
         )
 
     if perspective:
+        # BGR -> BGR
         img, labels = random_perspective(img, labels, mode=mode, bg_color=bg_color)
 
     if rotate:
+        # BGR -> BGR
         if angle == "auto":
             random.seed(datetime.now().timestamp())
             angle = random.randint(-10, 10)
@@ -456,9 +460,11 @@ def augment_img_label_and_save(
         img, labels = rotate_img_and_bboxes(img, labels, angle=angle, bg_color=bg_color)
 
     if debug:
+        # BGR -> BGR
         img = draw_bbox_on_img(img=img, label=labels)
 
     if remove_bg:
+        # BGR -> BGRA
         img = remove_bg_from_img(img, bg_color=bg_color)
 
     cv2.imwrite(target_dir + "/images/train/" + fname + ".png", img)
