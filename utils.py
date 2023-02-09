@@ -21,11 +21,11 @@ def remove_bg_from_img(img: np.ndarray, bg_color: str = "yellow") -> np.ndarray:
     # of coloured image
     b, g, r = cv2.split(img)
 
-    # Making list of Red, Green, Blue
+    # Making list of Blue, Green, Red
     # Channels and alpha
-    rgba = [b, g, r, alpha]
+    bgra = [b, g, r, alpha]
 
-    return cv2.merge(rgba, 4)
+    return cv2.merge(bgra, 4)
 
 
 def warp_point(x: int, y: int, M: np.ndarray) -> Tuple[int, int]:
@@ -204,13 +204,16 @@ def parse_label(fname: str) -> np.ndarray:
 def random_bright(img: np.ndarray) -> np.ndarray:
     random.seed(datetime.now().timestamp())
 
-    img = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+    if len(img.shape) == 4:
+        raise NotImplemented
+
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     img = np.array(img, dtype=np.float64)
     random_bright = 0.5 + np.random.uniform()
     img[:, :, 2] = img[:, :, 2] * random_bright
     img[:, :, 2][img[:, :, 2] > 255] = 255
     img = np.array(img, dtype=np.uint8)
-    img = cv2.cvtColor(img, cv2.COLOR_HSV2RGB)
+    img = cv2.cvtColor(img, cv2.COLOR_HSV2BGR)
 
     return img
 

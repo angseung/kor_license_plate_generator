@@ -938,13 +938,13 @@ if __name__ == "__main__":
         save_path=img_dir,
         resize_opt=False,
         resize_scale=(1.0, 3.0),
-        bright=False,
+        bright=True,
         perspective=True,
         mode="auto",
         remove_bg=True,
         rotate=True,
         angle="auto",
-        debug=False,
+        debug=True,
         no_number=False,
     )
 
