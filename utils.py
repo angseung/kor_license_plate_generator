@@ -272,24 +272,6 @@ def blend_bgra_on_bgr(
     return blended
 
 
-def get_color(fg: np.ndarray, bg: np.ndarray, row: int, col: int) -> np.ndarray:
-    assert fg.shape[2] == 4 and bg.shape[2] == 4
-    fg = cv2.cvtColor(fg, cv2.COLOR_BGRA2RGBA)
-    bg = cv2.cvtColor(bg, cv2.COLOR_BGRA2RGBA)
-
-    padded_fg = np.zeros_like(bg, dtype=np.uint8)
-    h, w = fg.shape[:2]
-    padded_fg[row : row + h, col : col + w, :] = fg
-
-    alpha = 255 - ((255 - padded_fg[:, :, 3]) * (255 - bg[:, :, 3]) / 255)
-    red = (padded_fg[:, :, 0] * (255 - bg[:, :, 3]) + bg[:, :, 0] * bg[:, :, 3]) / 255
-    green = (padded_fg[:, :, 1] * (255 - bg[:, :, 3]) + bg[:, :, 1] * bg[:, :, 3]) / 255
-    blue = (padded_fg[:, :, 2] * (255 - bg[:, :, 3]) + bg[:, :, 2] * bg[:, :, 3]) / 255
-
-    bgra = [blue.astype(np.uint8), green.astype(np.uint8), red.astype(np.uint8), alpha.astype(np.uint8)]
-    return cv2.merge(bgra, 4)
-
-
 def blend_bgra_on_bgra(
     fg: np.ndarray, bg: np.ndarray, row: int, col: int
 ) -> np.ndarray:
@@ -310,6 +292,18 @@ def blend_bgra_on_bgra(
     bgra = [blue, green, red, alpha]
 
     return cv2.merge(bgra)
+
+
+def blend_bgr_on_bgra(
+    fg: np.ndarray, bg: np.ndarray, row: int, col: int
+) -> np.ndarray:
+
+    assert fg.shape[2] == 3 and bg.shape[2] == 4
+    h, w = fg.shape[:2]
+    alpha = bg[:, :, 3]
+    bg[row : row + h, col : col + w, :3] = fg
+
+    return bg
 
 
 def make_bboxes(

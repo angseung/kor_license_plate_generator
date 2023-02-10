@@ -8,6 +8,7 @@ import numpy as np
 from class_labels import class_dict
 from utils import (
     blend_bgra_on_bgra,
+    blend_bgr_on_bgra,
     make_bboxes,
     augment_img_label_and_save,
     convert_bbox_to_label,
@@ -334,7 +335,8 @@ class ImageGenerator:
         # number 1
         label += self.region_list_py[region_label]
         w, h = region_py[region_label].shape[:2]
-        plate[row : row + w, col : col + h, :] = region_py[region_label]
+        # plate[row : row + w, col : col + h, :] = region_py[region_label]
+        plate = blend_bgr_on_bgra(fg=region_py[region_label], bg=plate, row=row, col=col)
         bboxes.append(
             make_bboxes(
                 plate,
@@ -350,7 +352,8 @@ class ImageGenerator:
         rand_int = random.randint(0, 9)
         label += self.number_list_y[rand_int]
         w, h = number_y[rand_int].shape[:2]
-        plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        # plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        plate = blend_bgr_on_bgra(fg=number_y[rand_int], bg=plate, row=row, col=col)
         bboxes.append(make_bboxes(plate, number_y[rand_int], rand_int, row, col))
         col += 56
 
@@ -358,14 +361,16 @@ class ImageGenerator:
         rand_int = random.randint(0, 9)
         label += self.number_list_y[rand_int]
         w, h = number_y[rand_int].shape[:2]
-        plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        # plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        plate = blend_bgr_on_bgra(fg=number_y[rand_int], bg=plate, row=row, col=col)
         bboxes.append(make_bboxes(plate, number_y[rand_int], rand_int, row, col))
         col += 56
 
         # character 3
         label += self.char_list_y[char_label]
         w, h = char_y[char_label].shape[:2]
-        plate[row : row + w, col : col + h, :] = char_y[char_label]
+        # plate[row : row + w, col : col + h, :] = char_y[char_label]
+        plate = blend_bgr_on_bgra(fg=char_y[char_label], bg=plate, row=row, col=col)
         bboxes.append(
             make_bboxes(
                 plate,
@@ -381,7 +386,8 @@ class ImageGenerator:
         rand_int = random.randint(0, 9)
         label += self.number_list_y[rand_int]
         w, h = number_y[rand_int].shape[:2]
-        plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        # plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        plate = blend_bgr_on_bgra(fg=number_y[rand_int], bg=plate, row=row, col=col)
         bboxes.append(make_bboxes(plate, number_y[rand_int], rand_int, row, col))
         col += 56
 
@@ -389,7 +395,8 @@ class ImageGenerator:
         rand_int = random.randint(0, 9)
         label += self.number_list_y[rand_int]
         w, h = number_y[rand_int].shape[:2]
-        plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        # plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        plate = blend_bgr_on_bgra(fg=number_y[rand_int], bg=plate, row=row, col=col)
         bboxes.append(make_bboxes(plate, number_y[rand_int], rand_int, row, col))
         col += 56
 
@@ -397,7 +404,8 @@ class ImageGenerator:
         rand_int = random.randint(0, 9)
         label += self.number_list_y[rand_int]
         w, h = number_y[rand_int].shape[:2]
-        plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        # plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        plate = blend_bgr_on_bgra(fg=number_y[rand_int], bg=plate, row=row, col=col)
         bboxes.append(make_bboxes(plate, number_y[rand_int], rand_int, row, col))
         col += 56
 
@@ -405,7 +413,8 @@ class ImageGenerator:
         rand_int = random.randint(0, 9)
         label += self.number_list_y[rand_int]
         w, h = number_y[rand_int].shape[:2]
-        plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        # plate[row : row + w, col : col + h, :] = number_y[rand_int]
+        plate = blend_bgr_on_bgra(fg=number_y[rand_int], bg=plate, row=row, col=col)
         bboxes.append(make_bboxes(plate, number_y[rand_int], rand_int, row, col))
         col += 56
 
@@ -964,8 +973,8 @@ if __name__ == "__main__":
 
     A.yellow_long(0, 0, save=Save)
     A.electronic_long(0, save=Save)
-    A.white_long_2digits(0, save=Save)
-    A.white_long_3digits(0, save=Save)
-    A.white_short_2digits(0, save=Save)
-    A.yellow_short(0, 0, save=Save)
-    A.green_short(0, 0, save=Save)
+    # A.white_long_2digits(0, save=Save)
+    # A.white_long_3digits(0, save=Save)
+    # A.white_short_2digits(0, save=Save)
+    # A.yellow_short(0, 0, save=Save)
+    # A.green_short(0, 0, save=Save)
