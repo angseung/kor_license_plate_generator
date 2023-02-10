@@ -48,10 +48,6 @@ class ImageGenerator:
         self.plate3 = cv2.imread("plate_g.png", cv2.IMREAD_UNCHANGED)
         self.plate_elec = cv2.imread("plate_e.png", cv2.IMREAD_UNCHANGED)
         self.new_plate1 = cv2.imread("new_plate1.png", cv2.IMREAD_UNCHANGED)
-        self.new_plate2 = cv2.imread("new_plate2.png")
-        self.new_plate3 = cv2.imread("new_plate3.png")
-        self.new_plate4 = cv2.imread("new_plate4.png")
-        self.new_plate8 = cv2.imread("new_plate8.png")
         self.class_dict = class_dict
 
         # loading Number
