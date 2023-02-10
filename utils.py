@@ -218,7 +218,7 @@ def random_bright(img: np.ndarray) -> np.ndarray:
     return img
 
 
-def blend_argb_with_rgb(
+def blend_bgra_with_bgr(
     fg: np.ndarray, bg: np.ndarray, row: int, col: int
 ) -> np.ndarray:
     _, mask = cv2.threshold(fg[:, :, 3], 1, 255, cv2.THRESH_BINARY)
