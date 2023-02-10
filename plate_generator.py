@@ -7,7 +7,7 @@ import numpy as np
 
 from class_labels import class_dict
 from utils import (
-    blend_bgra_with_bgr,
+    blend_bgra_on_bgr,
     make_bboxes,
     augment_img_label_and_save,
     convert_bbox_to_label,
@@ -558,7 +558,7 @@ class ImageGenerator:
         rand_int = random.randint(0, 9)
         label += self.number_list_tr[rand_int]
         fg = number_tr[rand_int]
-        added = blend_bgra_with_bgr(fg, plate, row, col)
+        added = blend_bgra_on_bgr(fg, plate, row, col)
         w, h = added.shape[:2]
 
         plate[row : row + w, col : col + h, :] = added
@@ -569,7 +569,7 @@ class ImageGenerator:
         rand_int = random.randint(0, 9)
         label += self.number_list_tr[rand_int]
         fg = number_tr[rand_int]
-        added = blend_bgra_with_bgr(fg, plate, row, col)
+        added = blend_bgra_on_bgr(fg, plate, row, col)
         w, h = added.shape[:2]
 
         plate[row : row + w, col : col + h, :] = added
@@ -579,7 +579,7 @@ class ImageGenerator:
         # character 3
         label += self.char_list_tr[char_label]
         fg = char_tr[char_label]
-        added = blend_bgra_with_bgr(fg, plate, row, col)
+        added = blend_bgra_on_bgr(fg, plate, row, col)
         w, h = added.shape[:2]
 
         plate[row : row + w, col : col + h, :] = added
@@ -598,7 +598,7 @@ class ImageGenerator:
         rand_int = random.randint(0, 9)
         label += self.number_list_tr[rand_int]
         fg = number_tr[rand_int]
-        added = blend_bgra_with_bgr(fg, plate, row, col)
+        added = blend_bgra_on_bgr(fg, plate, row, col)
         w, h = added.shape[:2]
 
         plate[row : row + w, col : col + h, :] = added
@@ -609,7 +609,7 @@ class ImageGenerator:
         rand_int = random.randint(0, 9)
         label += self.number_list_tr[rand_int]
         fg = number_tr[rand_int]
-        added = blend_bgra_with_bgr(fg, plate, row, col)
+        added = blend_bgra_on_bgr(fg, plate, row, col)
         w, h = added.shape[:2]
 
         plate[row : row + w, col : col + h, :] = added
@@ -620,7 +620,7 @@ class ImageGenerator:
         rand_int = random.randint(0, 9)
         label += self.number_list_tr[rand_int]
         fg = number_tr[rand_int]
-        added = blend_bgra_with_bgr(fg, plate, row, col)
+        added = blend_bgra_on_bgr(fg, plate, row, col)
         w, h = added.shape[:2]
 
         plate[row : row + w, col : col + h, :] = added
@@ -631,7 +631,7 @@ class ImageGenerator:
         rand_int = random.randint(0, 9)
         label += self.number_list_tr[rand_int]
         fg = number_tr[rand_int]
-        added = blend_bgra_with_bgr(fg, plate, row, col)
+        added = blend_bgra_on_bgr(fg, plate, row, col)
         w, h = added.shape[:2]
 
         plate[row : row + w, col : col + h, :] = added

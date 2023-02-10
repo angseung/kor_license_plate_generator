@@ -218,9 +218,10 @@ def random_bright(img: np.ndarray) -> np.ndarray:
     return img
 
 
-def blend_bgra_with_bgr(
+def blend_bgra_on_bgr(
     fg: np.ndarray, bg: np.ndarray, row: int, col: int
 ) -> np.ndarray:
+    assert fg.shape[2] == 4 and bg.shape[2] == 3
     _, mask = cv2.threshold(fg[:, :, 3], 1, 255, cv2.THRESH_BINARY)
     mask_inv = cv2.bitwise_not(mask)
     img_fg = cv2.cvtColor(fg, cv2.COLOR_BGRA2BGR)
@@ -234,36 +235,44 @@ def blend_bgra_with_bgr(
     return blended
 
 
-def blend_argb_with_argb(
+def get_color(fg: np.ndarray, bg: np.ndarray, row: int, col: int) -> np.ndarray:
+    assert fg.shape[2] == 4 and bg.shape[2] == 4
+    fg = cv2.cvtColor(fg, cv2.COLOR_BGRA2RGBA)
+    bg = cv2.cvtColor(bg, cv2.COLOR_BGRA2RGBA)
+
+    padded_fg = np.zeros_like(bg, dtype=np.uint8)
+    h, w = fg.shape[:2]
+    padded_fg[row : row + h, col : col + w, :] = fg
+
+    alpha = 255 - ((255 - padded_fg[:, :, 3]) * (255 - bg[:, :, 3]) / 255)
+    red = (padded_fg[:, :, 0] * (255 - bg[:, :, 3]) + bg[:, :, 0] * bg[:, :, 3]) / 255
+    green = (padded_fg[:, :, 1] * (255 - bg[:, :, 3]) + bg[:, :, 1] * bg[:, :, 3]) / 255
+    blue = (padded_fg[:, :, 2] * (255 - bg[:, :, 3]) + bg[:, :, 2] * bg[:, :, 3]) / 255
+
+    bgra = [blue.astype(np.uint8), green.astype(np.uint8), red.astype(np.uint8), alpha.astype(np.uint8)]
+    return cv2.merge(bgra, 4)
+
+
+def blend_argb_on_argb(
     fg: np.ndarray, bg: np.ndarray, row: int, col: int
 ) -> np.ndarray:
 
     assert fg.shape[2] == 4 and bg.shape[2] == 4
 
+    padded_fg = np.zeros_like(bg, dtype=np.uint8)
     h, w = fg.shape[:2]
+    padded_fg[row : row + h, col : col + w, :] = fg
 
-    cropped_bg = bg[row : row + h, col : col + w, :]  # BGRA
-    bA = cropped_bg[:, :, 0]
-    gA = cropped_bg[:, :, 1]
-    rA = cropped_bg[:, :, 2]
-    aA = cropped_bg[:, :, 3]
+    _, mask_fg = cv2.threshold(bg[:, :, 3], 1, 255, cv2.THRESH_BINARY)
+    _, mask_bg = cv2.threshold(padded_fg[:, :, 3], 1, 255, cv2.THRESH_BINARY)
+    alpha = cv2.bitwise_or(mask_fg, mask_bg)
+    # bg[:, :, :2] = cv2.add(bg[:, :, :2], padded_fg[:, :, :2])
+    bg[:, :, :3] = blend_bgra_on_bgr(bg=bg[:, :, :3], fg=padded_fg, row=0, col=0)
 
-    bB = fg[:, :, 0]
-    gB = fg[:, :, 1]
-    rB = fg[:, :, 2]
-    aB = fg[:, :, 3]
+    blue, green, red = cv2.split(bg[:, :, :3])
+    bgra = [blue, green, red, alpha]
 
-    rOut = (rA * aA / 255) + (rB * aB * (255 - aA) / (255 * 255))
-    gOut = (gA * aA / 255) + (gB * aB * (255 - aA) / (255 * 255))
-    bOut = (bA * aA / 255) + (bB * aB * (255 - aA) / (255 * 255))
-    aOut = aA + (aB * (255 - aA) / 255)
-
-    bg[row : row + h, col : col + w, 0] = bOut
-    bg[row : row + h, col : col + w, 1] = gOut
-    bg[row : row + h, col : col + w, 2] = rOut
-    bg[row : row + h, col : col + w, 3] = aOut
-
-    return bg
+    return cv2.merge(bgra)
 
 
 def make_bboxes(
@@ -683,3 +692,10 @@ def rotate_img_and_bboxes(
     bboxes = label_voc2yolo(labels_voc, h=bound_h, w=bound_w)
 
     return rotated_img, bboxes
+
+
+if __name__ == "__main__":
+    fg = cv2.imread("EL04wn2084.png", cv2.IMREAD_UNCHANGED)
+    bg = cv2.imread("test.png", cv2.IMREAD_UNCHANGED)
+    aa = blend_argb_on_argb(fg, bg, 30, 30)
+    cv2.imwrite("aa.png", aa)

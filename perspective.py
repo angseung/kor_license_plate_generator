@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from utils import (
     parse_label,
     draw_bbox_on_img,
-    blend_bgra_with_bgr,
+    blend_bgra_on_bgr,
     random_perspective,
     remove_bg_from_img,
     get_angle_from_warp,
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     tmp = np.zeros((3000, 3000, 3), dtype=np.uint8)
     tmp[:, :, :] = 0
     dst = remove_bg_from_img(result4)
-    img_tr = blend_bgra_with_bgr(fg=dst, bg=tmp, row=0, col=1)
+    img_tr = blend_bgra_on_bgr(fg=dst, bg=tmp, row=0, col=1)
 
     plt.imshow(img_tr)
     plt.show()
