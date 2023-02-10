@@ -297,10 +297,8 @@ def blend_bgra_on_bgra(
 def blend_bgr_on_bgra(
     fg: np.ndarray, bg: np.ndarray, row: int, col: int
 ) -> np.ndarray:
-
     assert fg.shape[2] == 3 and bg.shape[2] == 4
     h, w = fg.shape[:2]
-    alpha = bg[:, :, 3]
     bg[row : row + h, col : col + w, :3] = fg
 
     return bg
