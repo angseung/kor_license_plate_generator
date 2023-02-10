@@ -7,7 +7,7 @@ import numpy as np
 
 from class_labels import class_dict
 from utils import (
-    blend_bgra_on_bgr,
+    blend_bgra_on_bgra,
     make_bboxes,
     augment_img_label_and_save,
     convert_bbox_to_label,
@@ -45,7 +45,7 @@ class ImageGenerator:
         self.plate = cv2.imread("plate.jpg")
         self.plate2 = cv2.imread("plate_y.jpg")
         self.plate3 = cv2.imread("plate_g.jpg")
-        self.plate_elec = cv2.imread("plate_e.png")
+        self.plate_elec = cv2.imread("plate_e-removebg.png", cv2.IMREAD_UNCHANGED)
         self.new_plate1 = cv2.imread("new_plate1.png")
         self.new_plate2 = cv2.imread("new_plate2.png")
         self.new_plate3 = cv2.imread("new_plate3.png")
@@ -558,10 +558,11 @@ class ImageGenerator:
         rand_int = random.randint(0, 9)
         label += self.number_list_tr[rand_int]
         fg = number_tr[rand_int]
-        added = blend_bgra_on_bgr(fg, plate, row, col)
-        w, h = added.shape[:2]
-
-        plate[row : row + w, col : col + h, :] = added
+        plate = blend_bgra_on_bgra(fg, plate, row, col)
+        # added = blend_bgra_on_bgr(fg, plate, row, col)
+        # w, h = added.shape[:2]
+        #
+        # plate[row : row + w, col : col + h, :] = added
         bboxes.append(make_bboxes(plate, number_tr[rand_int], rand_int, row, col))
         col += 56
 
@@ -569,20 +570,22 @@ class ImageGenerator:
         rand_int = random.randint(0, 9)
         label += self.number_list_tr[rand_int]
         fg = number_tr[rand_int]
-        added = blend_bgra_on_bgr(fg, plate, row, col)
-        w, h = added.shape[:2]
-
-        plate[row : row + w, col : col + h, :] = added
+        plate = blend_bgra_on_bgra(fg, plate, row, col)
+        # added = blend_bgra_on_bgr(fg, plate, row, col)
+        # w, h = added.shape[:2]
+        #
+        # plate[row : row + w, col : col + h, :] = added
         bboxes.append(make_bboxes(plate, number_tr[rand_int], rand_int, row, col))
         col += 56
 
         # character 3
         label += self.char_list_tr[char_label]
         fg = char_tr[char_label]
-        added = blend_bgra_on_bgr(fg, plate, row, col)
-        w, h = added.shape[:2]
-
-        plate[row : row + w, col : col + h, :] = added
+        plate = blend_bgra_on_bgra(fg, plate, row, col)
+        # added = blend_bgra_on_bgr(fg, plate, row, col)
+        # w, h = added.shape[:2]
+        #
+        # plate[row : row + w, col : col + h, :] = added
         bboxes.append(
             make_bboxes(
                 plate,
@@ -598,10 +601,11 @@ class ImageGenerator:
         rand_int = random.randint(0, 9)
         label += self.number_list_tr[rand_int]
         fg = number_tr[rand_int]
-        added = blend_bgra_on_bgr(fg, plate, row, col)
-        w, h = added.shape[:2]
-
-        plate[row : row + w, col : col + h, :] = added
+        plate = blend_bgra_on_bgra(fg, plate, row, col)
+        # added = blend_bgra_on_bgr(fg, plate, row, col)
+        # w, h = added.shape[:2]
+        #
+        # plate[row : row + w, col : col + h, :] = added
         bboxes.append(make_bboxes(plate, number_tr[rand_int], rand_int, row, col))
         col += 56
 
@@ -609,10 +613,11 @@ class ImageGenerator:
         rand_int = random.randint(0, 9)
         label += self.number_list_tr[rand_int]
         fg = number_tr[rand_int]
-        added = blend_bgra_on_bgr(fg, plate, row, col)
-        w, h = added.shape[:2]
-
-        plate[row : row + w, col : col + h, :] = added
+        plate = blend_bgra_on_bgra(fg, plate, row, col)
+        # added = blend_bgra_on_bgr(fg, plate, row, col)
+        # w, h = added.shape[:2]
+        #
+        # plate[row : row + w, col : col + h, :] = added
         bboxes.append(make_bboxes(plate, number_tr[rand_int], rand_int, row, col))
         col += 56
 
@@ -620,10 +625,11 @@ class ImageGenerator:
         rand_int = random.randint(0, 9)
         label += self.number_list_tr[rand_int]
         fg = number_tr[rand_int]
-        added = blend_bgra_on_bgr(fg, plate, row, col)
-        w, h = added.shape[:2]
-
-        plate[row : row + w, col : col + h, :] = added
+        plate = blend_bgra_on_bgra(fg, plate, row, col)
+        # added = blend_bgra_on_bgr(fg, plate, row, col)
+        # w, h = added.shape[:2]
+        #
+        # plate[row : row + w, col : col + h, :] = added
         bboxes.append(make_bboxes(plate, number_tr[rand_int], rand_int, row, col))
         col += 56
 
@@ -631,10 +637,11 @@ class ImageGenerator:
         rand_int = random.randint(0, 9)
         label += self.number_list_tr[rand_int]
         fg = number_tr[rand_int]
-        added = blend_bgra_on_bgr(fg, plate, row, col)
-        w, h = added.shape[:2]
-
-        plate[row : row + w, col : col + h, :] = added
+        plate = blend_bgra_on_bgra(fg, plate, row, col)
+        # added = blend_bgra_on_bgr(fg, plate, row, col)
+        # w, h = added.shape[:2]
+        #
+        # plate[row : row + w, col : col + h, :] = added
         bboxes.append(make_bboxes(plate, number_tr[rand_int], rand_int, row, col))
         col += 56
 
@@ -941,8 +948,8 @@ if __name__ == "__main__":
         bright=True,
         perspective=True,
         mode="auto",
-        remove_bg=True,
-        rotate=True,
+        remove_bg=False,
+        rotate=False,
         angle="auto",
         debug=False,
         no_number=False,

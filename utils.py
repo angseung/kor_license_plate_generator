@@ -50,6 +50,15 @@ def random_perspective(
     if pads is not None:
         assert len(pads) == 2
 
+    is_alpha = True if img.shape[2] == 4 else False
+
+    if bg_color in ["yellow", "blue"]:
+        color = (255, 255, 255)  # (B, G, R)
+    elif bg_color in ["white", "green"]:
+        color = (0, 0, 255)  # (B, G, R)
+    else:
+        raise ValueError
+
     H, W = img.shape[:2]
     max_pad_h = H // max_pad_order[0]
     max_pad_w = W // max_pad_order[1]
@@ -67,9 +76,19 @@ def random_perspective(
         if pads is not None:
             pad_l, pad_r = pads
 
-        img_padded = np.zeros([H, W + pad_l + pad_r, 3], dtype=np.uint8)
-        img_padded[:, :, :] = 255
-        img_padded[:, pad_l:-pad_r, :] = img
+        if is_alpha:
+            img_padded = np.zeros([H, W + pad_l + pad_r, 4], dtype=np.uint8)
+            img_padded[:, :, 0] = color[0]  # B
+            img_padded[:, :, 1] = color[1]  # G
+            img_padded[:, :, 2] = color[2]  # R
+            img_padded[:, pad_l:-pad_r, 3] = img[:, :, 3]  # alpha
+            img_padded[:, pad_l:-pad_r, :3] = img[:, :, :3]
+        else:
+            img_padded = np.zeros([H, W + pad_l + pad_r, 3], dtype=np.uint8)
+            img_padded[:, :, 0] = color[0]  # B
+            img_padded[:, :, 1] = color[1]  # G
+            img_padded[:, :, 2] = color[2]  # R
+            img_padded[:, pad_l:-pad_r, :] = img
 
         if mode == "top":
             point_before = np.float32(
@@ -105,9 +124,23 @@ def random_perspective(
         if pads is not None:
             pad_top, pad_bottom = pads
 
-        img_padded = np.zeros([H + pad_top + pad_bottom, W, 3], dtype=np.uint8)
-        img_padded[:, :, :] = 255
-        img_padded[pad_top:-pad_bottom, :, :] = img
+        if is_alpha:
+            img_padded = np.zeros([H + pad_top + pad_bottom, W, 4], dtype=np.uint8)
+            img_padded[:, :, 0] = color[0]  # B
+            img_padded[:, :, 1] = color[1]  # G
+            img_padded[:, :, 2] = color[2]  # R
+            img_padded[pad_top:-pad_bottom, :, 3] = img[:, :, 3]  # alpha
+            img_padded[pad_top:-pad_bottom, :, :3] = img[:, :, :3]
+        else:
+            img_padded = np.zeros([H + pad_top + pad_bottom, W, 3], dtype=np.uint8)
+            img_padded[:, :, 0] = color[0]  # B
+            img_padded[:, :, 1] = color[1]  # G
+            img_padded[:, :, 2] = color[2]  # R
+            img_padded[pad_top:-pad_bottom, :, :] = img
+
+        # img_padded = np.zeros([H + pad_top + pad_bottom, W, 3], dtype=np.uint8)
+        # img_padded[:, :, :] = 255
+        # img_padded[pad_top:-pad_bottom, :, :] = img
 
         if mode == "left":
             point_before = np.float32(
@@ -134,13 +167,6 @@ def random_perspective(
             point_after = np.float32(
                 [[0, pad_top], [W, pad_top], [0, H + pad_top], [W, H + pad_top]]
             )
-
-    if bg_color in ["yellow", "blue"]:
-        color = (255, 255, 255)
-    elif bg_color in ["white", "green"]:
-        color = (0, 0, 255)
-    else:
-        raise ValueError
 
     mtrx = cv2.getPerspectiveTransform(point_before, point_after)
     result = cv2.warpPerspective(img_padded, mtrx, img_padded.shape[:2][::-1],
@@ -203,9 +229,12 @@ def parse_label(fname: str) -> np.ndarray:
 
 def random_bright(img: np.ndarray) -> np.ndarray:
     random.seed(datetime.now().timestamp())
+    is_alpha = False
 
     if img.shape[2] == 4:
-        raise NotImplemented
+        is_alpha = True
+        alpha = img[:, :, 3]
+        img = img[:, :, :3]
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     img = np.array(img, dtype=np.float64)
@@ -214,6 +243,11 @@ def random_bright(img: np.ndarray) -> np.ndarray:
     img[:, :, 2][img[:, :, 2] > 255] = 255
     img = np.array(img, dtype=np.uint8)
     img = cv2.cvtColor(img, cv2.COLOR_HSV2BGR)
+
+    if is_alpha:
+        blue, green, red = cv2.split(img)
+        bgra = [blue, green, red, alpha]
+        img = cv2.merge(bgra, 4)
 
     return img
 
@@ -253,7 +287,7 @@ def get_color(fg: np.ndarray, bg: np.ndarray, row: int, col: int) -> np.ndarray:
     return cv2.merge(bgra, 4)
 
 
-def blend_argb_on_argb(
+def blend_bgra_on_bgra(
     fg: np.ndarray, bg: np.ndarray, row: int, col: int
 ) -> np.ndarray:
 
@@ -266,7 +300,7 @@ def blend_argb_on_argb(
     _, mask_fg = cv2.threshold(bg[:, :, 3], 1, 255, cv2.THRESH_BINARY)
     _, mask_bg = cv2.threshold(padded_fg[:, :, 3], 1, 255, cv2.THRESH_BINARY)
     alpha = cv2.bitwise_or(mask_fg, mask_bg)
-    # bg[:, :, :2] = cv2.add(bg[:, :, :2], padded_fg[:, :, :2])
+
     bg[:, :, :3] = blend_bgra_on_bgr(bg=bg[:, :, :3], fg=padded_fg, row=0, col=0)
 
     blue, green, red = cv2.split(bg[:, :, :3])
@@ -447,7 +481,7 @@ def augment_img_label_and_save(
     debug: bool = False,
 ):
     if bright:
-        # BGR -> BGR
+        # BGRA -> BGRA
         img = random_bright(img)
 
     if resize:
@@ -697,5 +731,5 @@ def rotate_img_and_bboxes(
 if __name__ == "__main__":
     fg = cv2.imread("EL04wn2084.png", cv2.IMREAD_UNCHANGED)
     bg = cv2.imread("test.png", cv2.IMREAD_UNCHANGED)
-    aa = blend_argb_on_argb(fg, bg, 30, 30)
+    aa = blend_bgra_on_bgra(fg, bg, 30, 30)
     cv2.imwrite("aa.png", aa)
