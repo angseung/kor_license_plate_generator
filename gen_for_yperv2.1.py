@@ -15,7 +15,7 @@ else:
 
 generator = ImageGenerator(
     save_path=save_path,
-    resize_opt=True,
+    resize_opt=False,
     resize_scale=(1.0, 3.0),
     bright=True,
     perspective=True,
@@ -133,9 +133,6 @@ char_y = char_mapper_y[char]
 char_tr = char_mapper_tr[char]
 
 for i in range(samples_to_gen_parcel):
-    generator.electronic_long(char_tr, save=True)
-    generated_samples += 1
-
     # for all regions of yellow plates
     for j in range(17):
         generator.yellow_long(j, char_y, save=True)
