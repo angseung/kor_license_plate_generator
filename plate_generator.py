@@ -949,7 +949,7 @@ if __name__ == "__main__":
         perspective=True,
         mode="auto",
         remove_bg=False,
-        rotate=False,
+        rotate=True,
         angle="auto",
         debug=False,
         no_number=False,

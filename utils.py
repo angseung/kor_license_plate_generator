@@ -8,6 +8,9 @@ from PIL import Image, ImageDraw
 
 
 def remove_bg_from_img(img: np.ndarray, bg_color: str = "yellow") -> np.ndarray:
+    if img.shape[2] == 4:
+        raise ValueError
+
     # Convert image to image gray
     tmp = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
