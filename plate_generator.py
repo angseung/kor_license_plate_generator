@@ -42,9 +42,9 @@ class ImageGenerator:
         self.angle = angle
 
         # Plate
-        self.plate = cv2.imread("plate.jpg")
-        self.plate2 = cv2.imread("plate_y.png")
-        self.plate3 = cv2.imread("plate_g.png")
+        self.plate = cv2.imread("plate.png", cv2.IMREAD_UNCHANGED)
+        self.plate2 = cv2.imread("plate_y.png", cv2.IMREAD_UNCHANGED)
+        self.plate3 = cv2.imread("plate_g.png", cv2.IMREAD_UNCHANGED)
         self.plate_elec = cv2.imread("plate_e.png", cv2.IMREAD_UNCHANGED)
         self.new_plate1 = cv2.imread("new_plate1.png")
         self.new_plate2 = cv2.imread("new_plate2.png")
