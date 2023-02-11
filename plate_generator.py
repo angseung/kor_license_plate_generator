@@ -19,10 +19,10 @@ class ImageGenerator:
     def __init__(
         self,
         save_path: str,
-        resize_opt: Optional[bool] = True,
+        resize_opt: Optional[bool] = False,
         resize_scale: Optional[Tuple[float, float]] = (1.0, 3.0),
-        bright: Optional[bool] = True,
-        perspective: Optional[bool] = True,
+        bright: Optional[bool] = False,
+        perspective: Optional[bool] = False,
         mode: Optional[str] = "auto",
         rotate: Optional[bool] = False,
         angle: Optional[Union[str, int]] = "auto",
