@@ -15,14 +15,14 @@ else:
 
 generator = ImageGenerator(
     save_path=save_path,
-    resize_opt=False,
-    resize_scale=(1.0, 3.0),
+    resize_opt=True,
+    resize_scale=(1.0, 2.0),
     bright=True,
     perspective=True,
     mode="auto",
     rotate=True,
     angle="auto",
-    remove_bg=True,
+    remove_bg=False,
     debug=False,
 )
 
