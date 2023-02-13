@@ -172,10 +172,13 @@ def random_perspective(
             )
 
     mtrx = cv2.getPerspectiveTransform(point_before, point_after)
-    result = cv2.warpPerspective(img_padded, mtrx, img_padded.shape[:2][::-1],
-                                 borderMode=cv2.BORDER_CONSTANT,
-                                 borderValue=color,
-                                 )
+    result = cv2.warpPerspective(
+        img_padded,
+        mtrx,
+        img_padded.shape[:2][::-1],
+        borderMode=cv2.BORDER_CONSTANT,
+        borderValue=color,
+    )
 
     for i, label in enumerate(labels):
         xtl, ytl, xbr, ybr = label.tolist()[1:]
@@ -255,9 +258,7 @@ def random_bright(img: np.ndarray) -> np.ndarray:
     return img
 
 
-def blend_bgra_on_bgr(
-    fg: np.ndarray, bg: np.ndarray, row: int, col: int
-) -> np.ndarray:
+def blend_bgra_on_bgr(fg: np.ndarray, bg: np.ndarray, row: int, col: int) -> np.ndarray:
     assert fg.shape[2] == 4 and bg.shape[2] == 3
     _, mask = cv2.threshold(fg[:, :, 3], 1, 255, cv2.THRESH_BINARY)
     mask_inv = cv2.bitwise_not(mask)
@@ -275,7 +276,6 @@ def blend_bgra_on_bgr(
 def blend_bgra_on_bgra(
     fg: np.ndarray, bg: np.ndarray, row: int, col: int
 ) -> np.ndarray:
-
     assert fg.shape[2] == 4 and bg.shape[2] == 4
 
     padded_fg = np.zeros_like(bg, dtype=np.uint8)
@@ -294,9 +294,7 @@ def blend_bgra_on_bgra(
     return cv2.merge(bgra)
 
 
-def blend_bgr_on_bgra(
-    fg: np.ndarray, bg: np.ndarray, row: int, col: int
-) -> np.ndarray:
+def blend_bgr_on_bgra(fg: np.ndarray, bg: np.ndarray, row: int, col: int) -> np.ndarray:
     assert fg.shape[2] == 3 and bg.shape[2] == 4
     h, w = fg.shape[:2]
     bg[row : row + h, col : col + w, :3] = fg
@@ -675,7 +673,10 @@ def get_enclosing_box(corners: np.ndarray) -> np.ndarray:
 
 
 def rotate_img_and_bboxes(
-    img: np.ndarray, bboxes: Union[np.ndarray, str], angle: int, bg_color: str = "yellow",
+    img: np.ndarray,
+    bboxes: Union[np.ndarray, str],
+    angle: int,
+    bg_color: str = "yellow",
 ) -> Tuple[np.ndarray, np.ndarray]:
     height, width = img.shape[:2]
     (cX, cY) = (width // 2, height // 2)
