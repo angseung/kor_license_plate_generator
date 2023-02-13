@@ -331,7 +331,9 @@ class ImageGenerator:
         # number 1
         label += self.region_list_py[region_label]
         w, h = region_py[region_label].shape[:2]
-        plate = blend_bgr_on_bgra(fg=region_py[region_label], bg=plate, row=row, col=col)
+        plate = blend_bgr_on_bgra(
+            fg=region_py[region_label], bg=plate, row=row, col=col
+        )
         bboxes.append(
             make_bboxes(
                 plate,
