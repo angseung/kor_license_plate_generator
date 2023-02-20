@@ -233,7 +233,7 @@ def parse_label(fname: str) -> np.ndarray:
     return np.array(label, dtype=np.float64)
 
 
-def random_bright(img: np.ndarray) -> np.ndarray:
+def random_bright(img: np.ndarray, offset: Optional[float] = 0.25) -> np.ndarray:
     random.seed(datetime.now().timestamp())
     is_alpha = False
 
@@ -244,7 +244,7 @@ def random_bright(img: np.ndarray) -> np.ndarray:
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     img = np.array(img, dtype=np.float64)
-    random_bright = 0.5 + np.random.uniform()
+    random_bright = offset + np.random.uniform()
     img[:, :, 2] = img[:, :, 2] * random_bright
     img[:, :, 2][img[:, :, 2] > 255] = 255
     img = np.array(img, dtype=np.uint8)
@@ -465,6 +465,7 @@ def augment_img_label_and_save(
     resize: bool = True,
     resize_scale: Tuple[float, float] = (1.0, 3.0),
     bright: bool = True,
+    bright_offset: float = 0.25,
     perspective: bool = True,
     rotate: bool = False,
     angle: Union[int, str] = "auto",
@@ -475,7 +476,7 @@ def augment_img_label_and_save(
 ):
     if bright:
         # BGRA -> BGRA
-        img = random_bright(img)
+        img = random_bright(img, offset=bright_offset)
 
     if resize:
         # BGR -> BGR

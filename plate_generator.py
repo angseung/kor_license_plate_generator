@@ -22,6 +22,7 @@ class ImageGenerator:
         resize_opt: Optional[bool] = False,
         resize_scale: Optional[Tuple[float, float]] = (1.0, 3.0),
         bright: Optional[bool] = False,
+        bright_offset: Optional[float] = 0.25,
         perspective: Optional[bool] = False,
         mode: Optional[str] = "auto",
         rotate: Optional[bool] = False,
@@ -33,6 +34,7 @@ class ImageGenerator:
         self.random_resize = resize_opt
         self.resize_scale = resize_scale
         self.bright = bright
+        self.bright_offset = bright_offset
         self.perspective = perspective
         self.mode = mode
         self.remove_bg = remove_bg
@@ -310,6 +312,7 @@ class ImageGenerator:
             resize=self.random_resize,
             resize_scale=self.resize_scale,
             bright=self.bright,
+            bright_offset=self.bright_offset,
             perspective=self.perspective,
             mode=self.mode,
             remove_bg=self.remove_bg,
@@ -423,6 +426,7 @@ class ImageGenerator:
             rotate=self.rotate,
             angle=self.angle,
             bright=self.bright,
+            bright_offset=self.bright_offset,
             perspective=self.perspective,
             mode=self.mode,
             remove_bg=self.remove_bg,
@@ -536,6 +540,7 @@ class ImageGenerator:
             rotate=self.rotate,
             angle=self.angle,
             bright=self.bright,
+            bright_offset=self.bright_offset,
             perspective=self.perspective,
             mode=self.mode,
             remove_bg=self.remove_bg,
@@ -628,6 +633,7 @@ class ImageGenerator:
             rotate=self.rotate,
             angle=self.angle,
             bright=self.bright,
+            bright_offset=self.bright_offset,
             perspective=self.perspective,
             mode=self.mode,
             remove_bg=self.remove_bg,
@@ -714,6 +720,7 @@ class ImageGenerator:
             rotate=self.rotate,
             angle=self.angle,
             bright=self.bright,
+            bright_offset=self.bright_offset,
             perspective=self.perspective,
             mode=self.mode,
             remove_bg=self.remove_bg,
@@ -807,6 +814,7 @@ class ImageGenerator:
             rotate=self.rotate,
             angle=self.angle,
             bright=self.bright,
+            bright_offset=self.bright_offset,
             perspective=self.perspective,
             mode=self.mode,
             remove_bg=self.remove_bg,
@@ -893,6 +901,7 @@ class ImageGenerator:
             rotate=self.rotate,
             angle=self.angle,
             bright=self.bright,
+            bright_offset=self.bright_offset,
             perspective=self.perspective,
             mode=self.mode,
             remove_bg=self.remove_bg,
