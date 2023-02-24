@@ -7,17 +7,17 @@ from plate_generator import ImageGenerator
 from class_labels import class_dict_reversed
 
 if "Windows" in platform.platform():
-    save_path = "./addons_v1.2"
+    save_path = "./addons_edge"
 elif "Linux" in platform.platform():
-    save_path = "/data_yper/addons_v1.2"
+    save_path = "/data_yper/addons_edge"
 else:
-    save_path = "./addons_v1.2"
+    save_path = "./addons_edge"
 
 generator = ImageGenerator(
     save_path=save_path,
     resize_opt=True,
     resize_scale=(1.0, 2.0),
-    bright=True,
+    bright=False,
     perspective=True,
     mode="auto",
     rotate=True,
@@ -30,7 +30,7 @@ if not os.path.isdir(f"{save_path}"):
     os.makedirs(f"{save_path}/images/train", exist_ok=True)
     os.makedirs(f"{save_path}/labels/train", exist_ok=True)
 
-gen_target: np.ndarray = pd.read_excel("gen_plates.xlsx").iloc[:-1, :].to_numpy()
+gen_target: np.ndarray = pd.read_excel("gen_plates_edge.xlsx").iloc[:-1, :].to_numpy()
 generated_samples = 0
 
 # for normal plate
