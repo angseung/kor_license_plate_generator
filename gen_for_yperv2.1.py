@@ -130,7 +130,7 @@ gen_parcel = gen_target[31, :]
 char = class_dict_reversed[int(gen_parcel[0])]
 
 char_y = char_mapper_y[char]
-char_tr = char_mapper_tr[char]
+# char_tr = char_mapper_tr[char]
 
 for i in range(samples_to_gen_parcel):
     # for all regions of yellow plates
