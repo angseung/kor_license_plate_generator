@@ -444,6 +444,17 @@ def label_voc2yolo(label_voc: np.ndarray, h: int, w: int) -> np.ndarray:
 
 
 def draw_bbox_on_img(img: np.ndarray, label: np.ndarray) -> np.ndarray:
+    """
+
+    Args:
+        img: image array as np.ndarray type
+        label: bounding boxes as np.ndarray type. It MUST BE VOC or Yolo format.
+
+    Returns: image that all objects in the image are boxed
+
+    """
+
+    # convert bbox format if it is yolo format
     if label.dtype not in [np.uint8, np.uint16, np.uint32]:
         label = label_yolo2voc(label, *(img.shape[:2]))
 
@@ -679,6 +690,17 @@ def rotate_img_and_bboxes(
     angle: int,
     bg_color: Union[str, Tuple[int, int, int]] = "yellow",
 ) -> Tuple[np.ndarray, np.ndarray]:
+    """
+
+    Args:
+        img: image array as np.ndarray type
+        bboxes: bounding boxes as np.ndarray type. IT MUST HAVE YOLO FORMAT.
+        angle: angle for rotation in degree
+        bg_color: background color for the rotated image
+
+    Returns:
+
+    """
     height, width = img.shape[:2]
     (cX, cY) = (width // 2, height // 2)
     mat = cv2.getRotationMatrix2D((cX, cY), angle, 1.0)
