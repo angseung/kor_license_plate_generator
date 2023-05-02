@@ -7,17 +7,17 @@ from plate_generator import ImageGenerator
 from class_labels import class_dict_reversed
 
 if "Windows" in platform.platform():
-    save_path = "./addons_v1.2"
+    save_path = "./no_hor_addons"
 elif "Linux" in platform.platform():
-    save_path = "/data_yper/addons_v1.2"
+    save_path = "/data_yper/no_hor_addons"
 else:
-    save_path = "./addons_v1.2"
+    save_path = "./no_hor_addons"
 
 generator = ImageGenerator(
     save_path=save_path,
     resize_opt=True,
     resize_scale=(1.0, 2.0),
-    bright=True,
+    bright=False,
     perspective=True,
     mode="auto",
     rotate=True,
@@ -30,7 +30,7 @@ if not os.path.isdir(f"{save_path}"):
     os.makedirs(f"{save_path}/images/train", exist_ok=True)
     os.makedirs(f"{save_path}/labels/train", exist_ok=True)
 
-gen_target: np.ndarray = pd.read_excel("gen_plates.xlsx").iloc[:-1, :].to_numpy()
+gen_target: np.ndarray = pd.read_excel("gen_plates_no_hor.xlsx").iloc[:-1, :].to_numpy()
 generated_samples = 0
 
 # for normal plate
@@ -82,12 +82,12 @@ for i in range(gen_region.shape[0]):
         region_w = region_mapper_h[region]
 
         # generates samples_to_gen samples...
-        for j in range(int(samples_to_gen) // 5):
-            generator.yellow_short(region_w, 0, save=True)  # 아
-            generator.yellow_short(region_w, 1, save=True)  # 바
-            generator.yellow_short(region_w, 3, save=True)  # 사
-            generator.yellow_short(region_w, 4, save=True)  # 자
-            generated_samples += 4
+        # for j in range(int(samples_to_gen) // 5):
+        #     generator.yellow_short(region_w, 0, save=True)  # 아
+        #     generator.yellow_short(region_w, 1, save=True)  # 바
+        #     generator.yellow_short(region_w, 3, save=True)  # 사
+        #     generator.yellow_short(region_w, 4, save=True)  # 자
+        #     generated_samples += 4
 
     elif len(region) == 3:
         region_h = region_mapper_v[region]
@@ -130,18 +130,19 @@ gen_parcel = gen_target[31, :]
 char = class_dict_reversed[int(gen_parcel[0])]
 
 char_y = char_mapper_y[char]
-char_tr = char_mapper_tr[char]
+# char_tr = char_mapper_tr[char]
 
 for i in range(samples_to_gen_parcel):
     # for all regions of yellow plates
     for j in range(17):
         generator.yellow_long(j, char_y, save=True)
-        generator.yellow_short(j, char_y, save=True)
-        generated_samples += 2
+        # generator.yellow_short(j, char_y, save=True)
+        # generated_samples += 2
+        generated_samples += 1
 
 # green short plates
-for region in range(16):
-    print(f"gen green short {region}/16")
-    for char in range(37):
-        for _ in range(10):
-            generator.green_short(region, char, save=True)
+# for region in range(16):
+#     print(f"gen green short {region}/16")
+#     for char in range(37):
+#         for _ in range(10):
+#             generator.green_short(region, char, save=True)

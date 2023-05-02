@@ -9,7 +9,7 @@ elif "Linux" in platform.platform():
 else:
     save_path = "/data_yper/addons"
 
-generator = ImageGenerator(save_path=save_path, random_resize=True, debug=False)
+generator = ImageGenerator(save_path=save_path, resize_opt=True, debug=False)
 
 if not os.path.isdir(f"{save_path}"):
     os.makedirs(f"{save_path}/images/train", exist_ok=True)
